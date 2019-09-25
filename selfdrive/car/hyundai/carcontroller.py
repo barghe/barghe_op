@@ -20,7 +20,7 @@ class CarController(object):
   def __init__(self, dbc_name, car_fingerprint):
     self.apply_steer_last = 0
     self.car_fingerprint = car_fingerprint
-    self.lkas11_cnt = -1
+    self.lkas11_cnt = 0
     self.clu11_cnt = 0
     self.cnt = 0
     self.last_resume_cnt = 0
@@ -47,11 +47,7 @@ class CarController(object):
 
     can_sends = []
 
-    # run only at first
-    if self.lkas11_cnt == -1:
-      self.lkas11_cnt = CS.lkas11["CF_Lkas_MsgCount"] + 1
-
-    self.lkas11_cnt %= 0x10
+    self.lkas11_cnt = self.cnt % 0x10
 
     if self.camera_disconnected:
       if (self.cnt % 10) == 0:
@@ -85,7 +81,7 @@ class CarController(object):
     elif self.last_lead_distance != 0:
       self.last_lead_distance = 0  
 
-    self.lkas11_cnt += 1
+
     self.cnt += 1
 
     return can_sends
