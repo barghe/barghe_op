@@ -121,7 +121,6 @@ def get_camera_parser(CP):
     ("CF_Lkas_FusionState", "LKAS11", 0),
     ("CF_Lkas_FcwOpt_USM", "LKAS11", 0),
     ("CF_Lkas_LdwsOpt_USM", "LKAS11", 0)
-    ("CF_Lkas_MsgCount", "LKAS11", 0)
   ]
 
   checks = []
