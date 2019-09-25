@@ -1,5 +1,12 @@
+int HKG_forwarding_enabled = 1;
+
 void default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
-  UNUSED(to_push);
+  int bus = GET_BUS(to_push);
+  int addr = GET_ADDR(to_push);
+  
+  if ((bus == 0) && (addr == 832)) {
+    HKG_forwarding_enabled = 0;
+  }
 }
 
 int default_ign_hook(void) {
@@ -15,7 +22,7 @@ static void nooutput_init(int16_t param) {
 
 static int nooutput_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   UNUSED(to_send);
-  return false;
+  return 1;
 }
 
 static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
@@ -26,9 +33,17 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
 }
 
 static int default_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
-  UNUSED(bus_num);
   UNUSED(to_fwd);
-  return -1;
+  int bus_fwd = -1;
+  if (HKG_forwarding_enabled == 1) {
+    if (bus_num == 0) {
+      bus_fwd = 2;
+    }
+    if (bus_num == 2) {
+      bus_fwd = 0;
+    }
+  }
+  return bus_fwd;
 }
 
 const safety_hooks nooutput_hooks = {
