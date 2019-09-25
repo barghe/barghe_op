@@ -28,11 +28,10 @@
 #include "drivers/spi.h"
 #endif
 
-#include "drivers/can.h"
-
 #include "power_saving.h"
 #include "safety.h"
 
+#include "drivers/can.h"
 
 // ********************* Serial debugging *********************
 
