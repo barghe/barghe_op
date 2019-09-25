@@ -8,7 +8,7 @@ void default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   int addr = GET_ADDR(to_push);
   
   if (addr == 593) {
-    if (MDPS12_checksum == -1) {
+    if (HKG_MDPS12_checksum == -1) {
       int New_Chksum2 = 0;
       uint8_t dat[8];
       for (int i=0; i<8; i++) {
@@ -21,10 +21,10 @@ void default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       }
       New_Chksum2 %= 256;
       if (Chksum2 == New_Chksum2) {
-        MDPS12_checksum = 0;
+        HKG_MDPS12_checksum = 0;
       }
       else {
-        MDPS12_checksum = 1;
+        HKG_MDPS12_checksum = 1;
       }
     }
   }
@@ -69,14 +69,14 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
         for (int i=0; i<8; i++) {
           dat[i] = GET_BYTE(to_fwd, i);
         }
-        if (MDPS12_cnt > 330) {
+        if (HKG_MDPS12_cnt > 330) {
           int StrColTq = dat[0] | (dat[1] & 0x7) << 8;
           int OutTq = dat[6] >> 4 | dat[7] << 4;
-          if (MDPS12_cnt == 331) {
+          if (HKG_MDPS12_cnt == 331) {
             StrColTq -= 164;
           }
           else {
-            StrColTq = last_StrColT + 34;
+            StrColTq = HKG_last_StrColT + 34;
           }
           OutTq = 2058;
 
@@ -92,16 +92,16 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
           to_fwd->RDLR |= StrColTq;
           to_fwd->RDHR &= 0xFFFFF;
           to_fwd->RDHR |= OutTq << 20;
-          last_StrColT = StrColTq;
+          HKG_last_StrColT = StrColTq;
 
           dat[3] = 0;
-          if (MDPS12_checksum == 0) { 
+          if (HKG_MDPS12_checksum == 0) { 
             for (int i=0; i<8; i++) {
               New_Chksum2 += dat[i];
             }
             New_Chksum2 %= 256;
           }
-          else if (MDPS12_checksum == 1) { //we need CRC8 checksum
+          else if (HKG_MDPS12_checksum == 1) { //we need CRC8 checksum
             uint8_t crc = 0xFF;
             uint8_t poly = 0x1D;
             int i, j;
@@ -124,8 +124,8 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
           }
           to_fwd->RDLR |= New_Chksum2 << 24;
         }
-        MDPS12_cnt += 1;
-        MDPS12_cnt %= 345;
+        HKG_MDPS12_cnt += 1;
+        HKG_MDPS12_cnt %= 345;
       }
       bus_fwd = 2;
     }
