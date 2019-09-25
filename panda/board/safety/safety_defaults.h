@@ -24,8 +24,8 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
   UNUSED(lin_num);
   UNUSED(data);
   UNUSED(len);
-  can_set_forwarding(0, 2);
-  can_set_forwarding(2, 0);
+  can_forwarding[0] = {-1,-1,1,-1};
+  can_forwarding[2] = {1,-1,-1,-1};
   return false;
 }
 
