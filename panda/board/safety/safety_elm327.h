@@ -15,7 +15,9 @@ static int elm327_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
       ((addr != 0x7DF) && ((addr & 0x7F8) != 0x7E0))) {
     tx = 0;
   }
-  return 1;
+  // needed for forwarding
+  tx = 1;
+  return tx;
 }
 
 static int elm327_tx_lin_hook(int lin_num, uint8_t *data, int len) {
