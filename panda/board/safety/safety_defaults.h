@@ -123,9 +123,9 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
             New_Chksum2 = crc;
           }
           to_fwd->RDLR |= New_Chksum2 << 24;
-          MDPS12_cnt += 1;
-          MDPS12_cnt %= 345;
         }
+        MDPS12_cnt += 1;
+        MDPS12_cnt %= 345;
       }
       bus_fwd = 2;
     }
