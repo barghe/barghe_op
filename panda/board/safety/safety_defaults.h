@@ -24,8 +24,6 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
   UNUSED(lin_num);
   UNUSED(data);
   UNUSED(len);
-  can_set_forwarding(0, 2);
-  can_set_forwarding(2, 0);
   return false;
 }
 
@@ -35,8 +33,6 @@ static int default_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
   if ((bus_num == 0) && (addr == 832)) {
     HKG_forwarding_enabled = 0;
-    can_set_forwarding(0, -1);
-    can_set_forwarding(2, -1);
   }
 
   if (HKG_forwarding_enabled) {
@@ -63,8 +59,6 @@ const safety_hooks nooutput_hooks = {
 
 static void alloutput_init(int16_t param) {
   UNUSED(param);
-  can_set_forwarding(0, 2);
-  can_set_forwarding(2, 0);
   controls_allowed = 1;
 }
 
