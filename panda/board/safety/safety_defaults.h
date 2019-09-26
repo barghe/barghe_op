@@ -65,7 +65,7 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
       bus_fwd = 12;
     }
     if (bus_num == 2) {
-      bus_fwd = 01;
+      bus_fwd = 10;
     }
   }
   if (bus_num == 1) {
