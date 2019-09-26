@@ -75,7 +75,7 @@ class CarController(object):
         self.clu11_cnt = 0
       # when lead car starts moving, create 6 RES msgs
       elif CS.lead_distance > self.last_lead_distance and (self.cnt - self.last_resume_cnt) > 5:
-      can_sends.append(create_clu11(self.packer, CS.clu11, Buttons.RES_ACCEL, 0, self.clu11_cnt))
+      can_sends.append(create_clu11(self.packer, CS.clu11, Buttons.RES_ACCEL, 0, self.clu11_cnt)) 
         self.clu11_cnt += 1
         # interval after 6 msgs
         if self.clu11_cnt > 5:
