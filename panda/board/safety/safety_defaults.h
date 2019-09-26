@@ -62,6 +62,13 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
 
   if (HKG_forwarding_enabled) {
     if (bus_num == 0) {
+      bus_fwd = 12;
+    }
+    if (bus_num == 2) {
+      bus_fwd = 01;
+    }
+  }
+  if (bus_num == 1) {
       if (addr == 593) {
         uint8_t dat[8];
         int New_Chksum2 = 0;
@@ -126,11 +133,7 @@ static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
         HKG_MDPS12_cnt += 1;
         HKG_MDPS12_cnt %= 345;
       }
-      bus_fwd = 2;
-    }
-    if (bus_num == 2) {
-      bus_fwd = 0;
-    }
+    bus_fwd = 20;
   }
   return bus_fwd;
 }
