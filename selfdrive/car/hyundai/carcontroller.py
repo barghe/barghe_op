@@ -28,8 +28,8 @@ def process_hud_alert(enabled, fingerprint, visual_alert, left_line,
 
   # initialize to no line visible
   lane_visible = 1
-  if left_line and right_line:
-    if enabled:
+  if left_line and right_line or hud_alert:
+    if enabled or hud_alert:
       lane_visible = 3
     else:
       lane_visible = 4
