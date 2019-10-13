@@ -24,7 +24,7 @@ def process_hud_alert(enabled, fingerprint, visual_alert, left_line,
 
   hud_alert = 0
   if visual_alert == VisualAlert.steerRequired:
-    hud_alert = 3
+    hud_alert = 3 if fingerprint in [CAR.GENESIS , CAR.GENESIS_G90, CAR.GENESIS_G80] else 5
 
   # initialize to no line visible
   lane_visible = 1
