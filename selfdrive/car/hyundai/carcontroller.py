@@ -41,7 +41,7 @@ class CarController(object):
     if not enabled:
       apply_steer = 0
 
-    steer_req = 1 if enabled else 0
+    steer_req = 1 if apply_steer else 0
 
     self.apply_steer_last = apply_steer
 
@@ -57,9 +57,10 @@ class CarController(object):
       if (self.cnt % 7) == 0:
         can_sends.append(create_1156())
 
-    can_sends.append(create_lkas11(self.packer, self.car_fingerprint, apply_steer, steer_req, self.lkas11_cnt,
+    can_sends.append(create_lkas11(self.packer, self.car_fingerprint, 0, apply_steer, steer_req, self.lkas11_cnt,
                                    enabled, CS.lkas11, hud_alert, keep_stock=(not self.camera_disconnected)))
-
+    can_sends.append(create_lkas11(self.packer, self.car_fingerprint, 1, apply_steer, steer_req, self.lkas11_cnt,
+                                   enabled, CS.lkas11, hud_alert, keep_stock=(not self.camera_disconnected)))
     low_speed = 41 if CS.v_ego < 17 else 0
     can_sends.append(create_clu11(self.packer, CS.clu11, Buttons.NONE, low_speed, self.clu11_cnt))
 
