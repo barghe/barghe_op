@@ -2,7 +2,7 @@ from cereal import car
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_lkas12, \
                                              create_1191, create_1156, \
-                                             create_clu11
+                                             create_clu11, create_vsm11
 from selfdrive.car.hyundai.values import CAR, Buttons
 from selfdrive.can.packer import CANPacker
 
@@ -101,6 +101,8 @@ class CarController():
                                    keep_stock=(not self.camera_disconnected)))
     low_speed = 61 #if CS.v_ego < 17 else 0
     can_sends.append(create_clu11(self.packer, CS.clu11, Buttons.NONE, low_speed, self.clu11_cnt))
+
+    create_vsm11(self.packer, CS.vsm11, enabled, 1, steer_req, self.lkas11_cnt)
 
     if pcm_cancel_cmd:
       self.clu11_cnt = frame % 0x10
