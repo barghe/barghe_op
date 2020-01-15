@@ -57,6 +57,12 @@ def get_can_parser(CP):
     ("SAS_Angle", "SAS11", 0),
     ("SAS_Speed", "SAS11", 0),
 
+    ("CR_Esc_StrTqReq", "VSM11", 0),
+    ("CF_Esc_Act", "VSM11", 0),
+    ("CF_Esc_CtrMode", "VSM11", 0),
+    ("CF_Esc_Def", "VSM11", 0),
+    ("CF_Esc_AliveCnt", "VSM11", 0),
+    ("CF_Esc_Chksum", "VSM11", 0),
   ]
 
   checks = [
@@ -307,3 +313,4 @@ class CarState():
     # save the entire LKAS11 and CLU11
     self.lkas11 = cp_cam.vl["LKAS11"]
     self.clu11 = cp.vl["CLU11"]
+    self.vsm11 = cp.vl["VSM11"]
