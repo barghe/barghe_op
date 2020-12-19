@@ -1,3 +1,13 @@
+OPENPILOT HKG BARGHE N 0.8.1 information
+======
+
+This is the neokii fork base.
+
+1. BARGHE intro animation KIA K7(CADENZA)
+2. nTune 1.2.3 APK
+3. System shutdown time: 3 minute
+4. LQR Car control
+
 HKG Community information
 ======
 
