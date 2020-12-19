@@ -126,8 +126,8 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.385
     elif candidate in [CAR.K7, CAR.K7_HEV]:
       tire_stiffness_factor = 0.6
-      ret.mass = 1640. + STD_CARGO_KG
-      ret.wheelbase = 2.845
+      ret.mass = 1705. + STD_CARGO_KG
+      ret.wheelbase = 2.855
 
 
     ret.lateralTuning.init('lqr')
@@ -143,13 +143,13 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.lqr.l = [0.33, 0.318]
 
     ret.steerRatio = 14.4
-    ret.steerActuatorDelay = 0.25
-    ret.steerLimitTimer = 2.5
+    ret.steerActuatorDelay = 0.1
+    ret.steerLimitTimer = 0.8
 
-    ret.steerRateCost = 0.55
+    ret.steerRateCost = 0.5
 
     ret.steerMaxBP = [0.]
-    ret.steerMaxV = [1.3]
+    ret.steerMaxV = [1.1]
 
     ###################################################
     # scc smoother

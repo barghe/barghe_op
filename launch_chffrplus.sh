@@ -6,10 +6,12 @@ if [ ! -f "/system/fonts/opensans_regular.ttf" ]; then
 
     mount -o rw,remount /system
 
-  	cp -f /data/openpilot/selfdrive/assets/fonts/opensans_* /system/fonts/
+    cp -f /data/openpilot/selfdrive/assets/fonts/opensans_* /system/fonts/
     cp -f /data/openpilot/selfdrive/assets/fonts.xml /system/etc/fonts.xml
     chmod 644 /system/etc/fonts.xml
-  	chmod 644 /system/fonts/opensans_*
+    chmod 644 /system/fonts/opensans_*
+
+    cp /data/openpilot/installer/bootanimation.zip /system/media/
 
     mount -o ro,remount /system
 fi
