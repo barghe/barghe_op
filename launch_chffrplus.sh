@@ -5,7 +5,7 @@ if [ ! -f "/system/fonts/NanumGothic.ttf" ]; then
 
   mount -o rw,remount /system
   cp -rf /data/openpilot/selfdrive/fonts/kor/NanumGothic* /system/fonts/
-  cp -rf /data/openpilot/selfdrive/fonts/kor/fonts/fonts.xml /system/etc/fonts.xml
+  cp -rf /data/openpilot/selfdrive/fonts/kor/fonts.xml /system/etc/fonts.xml
   chmod 644 /system/etc/fonts.xml
   chmod 644 /system/fonts/NanumGothic*
   cp /data/openpilot/installer/bootanimation.zip /system/media/
