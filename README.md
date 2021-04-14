@@ -7,6 +7,20 @@ This is the neokii fork base.
 2. nTune 1.2.3 APK
 3. System shutdown time: 3 minute
 4. LQR Car control
+---
+Barghe Youtube Openpilot.
+------
+
+<table>
+  <tr>
+    <td><a href="https://youtu.be/RIV67W8X-8Q" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/RIV67W8X-8Q/0.jpg"></a></td>
+    <td><a href="https://youtu.be/uc7z55xGyIY" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/uc7z55xGyIY/0.jpg"></a></td>
+    <td><a href="https://youtu.be/sY95LeuegqI" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/sY95LeuegqI/0.jpg"></a></td>
+    <td><a href="https://youtu.be/-83IniwgxBA" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/-83IniwgxBA/0.jpg"></a></td>
+  </tr>
+</table>
+
+
 
 HKG Community information
 ======
