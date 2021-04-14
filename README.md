@@ -1,7 +1,7 @@
 OPENPILOT BARGHE HKG N 0.8.2 information
 ======
 
-This Branch is neokii base.
+This Branch is xx979xx, neokii base.
 
 1. Intro animation KIA K7(CADENZA)
 2. Spinner image Change
