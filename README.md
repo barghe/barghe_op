@@ -18,10 +18,10 @@ Barghe Youtube Openpilot.
 
 <table>
   <tr>
-    <td><a href="https://www.youtube.com/embed/uc7z55xGyIY" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/an_webp/uc7z55xGyIY/mqdefault_6s.webp?du=3000&sqp=CPS-rYIG&rs=AOn4CLD553LCVZAYiDqoebVWvaXthIhg4g"></a></td>
-    <td><a href="https://www.youtube.com/embed/sY95LeuegqI" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/an_webp/sY95LeuegqI/mqdefault_6s.webp?du=3000&sqp=CLq4rYIG&rs=AOn4CLDMXt8E0yGI9--KsByx6trAGHrCPQ"></a></td>
-    <td><a href="https://www.youtube.com/embed/bemT6v0-uUw" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/an_webp/bemT6v0-uUw/mqdefault_6s.webp?du=3000&sqp=CLy3rYIG&rs=AOn4CLCBhRCBLzXbupFVolJNHIz72fJmwQ"></a></td>
-    <td><a href="https://www.youtube.com/embed/-83IniwgxBA" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/an_webp/-83IniwgxBA/mqdefault_6s.webp?du=3000&sqp=CIDGrYIG&rs=AOn4CLAyosKs7iWMspCWNx3e_ZNHFsVWBg"></a></td>
+    <td><a href="https://www.youtube.com/embed/uc7z55xGyIY" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/uc7z55xGyIY/0.jpg"></a></td>
+    <td><a href="https://www.youtube.com/embed/sY95LeuegqI" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/sY95LeuegqI/0.jpg"></a></td>
+    <td><a href="https://www.youtube.com/embed/bemT6v0-uUw" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/bemT6v0-uUw/0.jpg"></a></td>
+    <td><a href="https://www.youtube.com/embed/-83IniwgxBA" title="YouTube" rel="noopener"><img src="https://i.ytimg.com/vi/-83IniwgxBA/0.jpg"></a></td>
   </tr>
 </table>
 
