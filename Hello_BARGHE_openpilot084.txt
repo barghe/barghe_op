@@ -1,0 +1,15 @@
+
+
+
+    # 안녕하세요!
+    # 바르게입니다.
+    # 바르게 깃허브에 오신 것을 환영합니다.
+    # openpilot는(은) comma.ai 사의 것입니다.
+    # 이 브랜치의 기본은 xx979xx and neokii 입니다.
+    # neokii님 브랜치를 수정하였습니다.
+    # 이 브랜치는 HKG_N_084 입니다.
+    # openpilot 주행 영상은 유투브 "바르게" , "barghe" 를 검색하면 볼 수 있습니다.
+	# YOUTUBE : https://www.youtube.com/channel/UCEReN-QmFazgLnEnMJd3ljA
+
+
+
