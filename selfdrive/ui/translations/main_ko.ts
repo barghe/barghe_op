@@ -118,7 +118,7 @@
     </message>
     <message>
         <source>Npilot controls Cruise State (Experimental)</source>
-        <translation>크루즈 상태 제어</translation>
+        <translation>크루즈 상태 제어 (실험적 기능)</translation>
     </message>
     <message>
         <source>Npilot controls cruise on/off, gap and set speed.</source>
@@ -702,7 +702,7 @@ location set</source>
     </message>
     <message>
         <source>Community</source>
-        <translation>커뮤니</translation>
+        <translation>커뮤니티</translation>
     </message>
 </context>
 <context>
