@@ -291,7 +291,7 @@
     </message>
     <message>
         <source>Soft restart</source>
-        <translation>소프트 재시</translation>
+        <translation>소프트 재시작</translation>
     </message>
     <message>
         <source>Are you sure you want to reset calibration and live params?</source>
