@@ -64,6 +64,7 @@ class CarController:
     self.resume_wait_timer = 0
 
     self.scc12_cnt = -1
+    self.prev_accel_req_value = 0
 
     from common.params import Params
     param = Params()
@@ -170,7 +171,7 @@ class CarController:
                                                 hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                                 left_lane_warning, right_lane_warning, self.ldws_opt))
 
-      if not self.CP.openpilotLongitudinalControl or CruiseStateManager.instance().allow_adjust_button(self.CP):
+      if not self.CP.openpilotLongitudinalControl or CruiseStateManager.instance().allow_resume_spam(self.CP):
         if CC.cruiseControl.cancel:
           can_sends.append(hyundaican.create_clu11(self.packer, CS.clu11, Buttons.CANCEL, self.CP.sccBus))
         elif CC.cruiseControl.resume:
@@ -219,7 +220,8 @@ class CarController:
       if self.frame % 5 == 0 and self.car_fingerprint in FEATURES["send_lfa_mfa"]:
         can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC.enabled, SpeedLimiter.instance().get_active()))
 
-      CC.aReqValue = CS.scc12["aReqValue"] if "aReqValue" in CS.scc12 else 0
+      CC.aReqValue = CS.scc12["aReqValue"] if "aReqValue" in CS.scc12 else self.prev_accel_req_value
+      self.prev_accel_req_value = CC.aReqValue
 
     CC.applyAccel = accel
 
