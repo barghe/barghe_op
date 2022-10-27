@@ -324,18 +324,8 @@ class SpeedController:
       actuators = c.last_actuators
       loc = c.LoC
 
-      long_states = ["off", "pid", "stopping", "starting"]
-      index = 0
-      state = actuators.longControlState
-      if state == LongCtrlState.pid:
-        index = 1
-      elif state == LongCtrlState.stopping:
-        index = 2
-      elif state == LongCtrlState.starting:
-        index = 3
-
       debug_text  = "Standstill: {}\n".format(CS.cruiseState.standstill)
-      debug_text += "Long State: {}, {}\n".format(long_states[index], actuators.longControlState)
+      debug_text += "Long State: {}\n".format(actuators.longControlState)
       debug_text += "vEgo: {:.2f}/{:.2f}\n".format(CS.vEgo, CS.vEgo*3.6)
 
       debug_text += "vPid: {:.2f}/{:.2f}\n".format(loc.v_pid, loc.v_pid*3.6)
