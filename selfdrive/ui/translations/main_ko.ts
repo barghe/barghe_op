@@ -299,7 +299,7 @@
     </message>
     <message>
         <source>Rebuild</source>
-        <translation>재빌</translation>
+        <translation>전체 재빌드</translation>
     </message>
     <message>
         <source>Are you sure you want to rebuild?</source>
