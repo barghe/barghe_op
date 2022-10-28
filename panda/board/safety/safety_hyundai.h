@@ -256,8 +256,8 @@ static int hyundai_rx_hook(CANPacket_t *to_push) {
   return valid;
 }
 
-uint32_t last_ts_lkas11_received_from_car = 0;
-uint32_t last_ts_scc12_received_from_car = 0;
+uint32_t last_ts_lkas11_received_from_op = 0;
+uint32_t last_ts_scc12_received_from_op = 0;
 
 static int hyundai_tx_hook(CANPacket_t *to_send, bool longitudinal_allowed) {
 
@@ -343,9 +343,9 @@ static int hyundai_tx_hook(CANPacket_t *to_send, bool longitudinal_allowed) {
   bool is_scc12_msg = addr == 1057;
 
   if(is_lkas11_msg)
-    last_ts_lkas11_received_from_car = microsecond_timer_get();
+    last_ts_lkas11_received_from_op = microsecond_timer_get();
   else if(is_scc12_msg)
-    last_ts_scc12_received_from_car = microsecond_timer_get();
+    last_ts_scc12_received_from_op = microsecond_timer_get();
 
   return tx;
 }
@@ -373,11 +373,11 @@ static int hyundai_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
     else {
       uint32_t now = microsecond_timer_get();
       if(is_lkas_msg || is_lfahda_msg) {
-        if(now - last_ts_lkas11_received_from_car >= 100000)
+        if(now - last_ts_lkas11_received_from_op >= 100000)
           bus_fwd = 0;
       }
       else if(is_scc_msg) {
-        if(now - last_ts_scc12_received_from_car >= 200000)
+        if(now - last_ts_scc12_received_from_op >= 200000)
           bus_fwd = 0;
       }
     }
