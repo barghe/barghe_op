@@ -206,8 +206,8 @@ class CarInterface(CarInterfaceBase):
       ret.mass = 2200
       ret.wheelbase = 3.15
       ret.steerRatio = 12.069
-
-    tire_stiffness_factor = interface_community.get_params(candidate, ret)
+    else:
+      tire_stiffness_factor = interface_community.get_params(candidate, ret)
 
     # *** longitudinal control ***
     if candidate in CANFD_CAR:
