@@ -171,7 +171,7 @@ class CarController:
                                                 hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                                 left_lane_warning, right_lane_warning, self.ldws_opt))
 
-      if not self.CP.openpilotLongitudinalControl or CruiseStateManager.instance().allow_resume_spam(self.CP):
+      if not self.CP.openpilotLongitudinalControl or CruiseStateManager.instance().is_resume_spam_allowed(self.CP):
         if CC.cruiseControl.cancel:
           can_sends.append(hyundaican.create_clu11(self.packer, CS.clu11, Buttons.CANCEL, self.CP.sccBus))
         elif CC.cruiseControl.resume:

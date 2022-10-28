@@ -285,7 +285,7 @@ class SpeedController:
 
     if self.wait_timer > 0:
       self.wait_timer -= 1
-    elif ascc_enabled and CS.vEgo > 0.1 and CruiseStateManager.instance().allow_set_speed_spam(self.CP):
+    elif ascc_enabled and CS.vEgo > 0.1 and CruiseStateManager.instance().is_set_speed_spam_allowed(self.CP):
       if self.alive_timer == 0:
         current_set_speed_clu = int(round(CS.cruiseState.speed * self.speed_conv_to_clu, 1))
         self.btn = self.get_button(current_set_speed_clu)
