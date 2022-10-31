@@ -84,6 +84,7 @@ class SpeedController:
     self.slow_on_curves = True #self.params.get_bool('SlowOnCurves')
     self.sync_set_speed_while_gas_pressed = True #self.params.get_bool('SyncGasPressed')
     self.is_metric = self.params.get_bool('IsMetric')
+    self.show_debug_message = self.params.get_bool('ShowDebugMessage')
 
     self.speed_conv_to_ms = CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS
     self.speed_conv_to_clu = CV.MS_TO_KPH if self.is_metric else CV.MS_TO_MPH
@@ -320,7 +321,7 @@ class SpeedController:
     CC.steerRatio = c.VM.sR
     CC.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
 
-    if True:
+    if self.show_debug_message:
       actuators = c.last_actuators
       loc = c.LoC
 

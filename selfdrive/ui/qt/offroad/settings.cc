@@ -511,7 +511,6 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
       tr("Npilot controls cruise on/off, gap and set speed."),
       "../assets/offroad/icon_road.png",
     },
-
     {
       "IsLdwsCar",
       tr("LDWS only"),
@@ -523,6 +522,12 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
       tr("Haptic feedback (speed-cam alert)"),
       tr("Haptic feedback when a speed camera is detected"),
       "../assets/offroad/icon_openpilot.png",
+    },
+    {
+      "ShowDebugMessage",
+      tr("Show Debug Message"),
+      "",
+      "../assets/offroad/icon_shell.png",
     },
   };
 
