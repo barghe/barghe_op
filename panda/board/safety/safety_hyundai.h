@@ -1,4 +1,5 @@
 #include "safety_hyundai_common.h"
+#include "safety_hyundai_community_common.h"
 
 const SteeringLimits HYUNDAI_STEERING_LIMITS = {
   .max_steer = 384,
@@ -185,6 +186,10 @@ static uint32_t hyundai_compute_checksum(CANPacket_t *to_push) {
   return chksum;
 }
 
+int MDPS12_checksum = -1;
+int MDPS12_cnt = 0;
+int Last_StrColTq = 0;
+
 static int hyundai_rx_hook(CANPacket_t *to_push) {
 
   bool valid = addr_safety_check(to_push, &hyundai_rx_checks,
@@ -253,6 +258,8 @@ static int hyundai_rx_hook(CANPacket_t *to_push) {
     }
     generic_rx_checks(stock_ecu_detected);
   }
+
+  hyundai_mdps12_checksum(to_push);
   return valid;
 }
 
@@ -373,8 +380,10 @@ static int hyundai_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
     else {
       uint32_t now = microsecond_timer_get();
       if(is_lkas_msg || is_lfahda_msg) {
-        if(now - last_ts_lkas11_received_from_op >= 100000)
+        if(now - last_ts_lkas11_received_from_op >= 100000) {
           bus_fwd = 0;
+          hyundai_fwd_mdps12(to_fwd);
+        }
       }
       else if(is_scc_msg) {
         if(now - last_ts_scc12_received_from_op >= 200000)

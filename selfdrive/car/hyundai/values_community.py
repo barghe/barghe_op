@@ -15,7 +15,7 @@ class CAR:
 
   GENESIS_EQ900 = "GENESIS EQ900 2017"
   GENESIS_EQ900_L = "GENESIS EQ900 LIMOUSINE"
-  GENESIS_G90 = "GENESIS G90 2019"
+  GENESIS_G90_2019 = "GENESIS G90 2019"
 
   MOHAVE = "KIA MOHAVE 2019"
   K7 = "KIA K7 2016-2019"
@@ -58,7 +58,7 @@ FINGERPRINTS = {
   CAR.GENESIS_EQ900_L: [{
     67: 8, 68: 8, 127: 8, 304: 8, 320: 8, 339: 8, 356: 4, 358: 6, 359: 8, 544: 8, 593: 8, 608: 8, 688: 5, 809: 8, 832: 8, 854: 7, 870: 7, 871: 8, 872: 8, 897: 8, 902: 8, 903: 8, 916: 8, 1040: 8, 1056: 8, 1057: 8, 1064: 8, 1078: 4, 1107: 5, 1136: 8, 1151: 6, 1156: 8, 1157: 4, 1162: 4, 1168: 7, 1170: 8, 1173: 8, 1184: 8, 1265: 4, 1280: 1, 1281: 3, 1287: 4, 1290: 8, 1292: 8, 1294: 8, 1312: 8, 1322: 8, 1342: 6, 1345: 8, 1348: 8, 1363: 8, 1369: 8, 1370: 8, 1371: 8, 1378: 4, 1384: 8, 1407: 8, 1419: 8, 1425: 2, 1427: 6, 1434: 2, 1456: 4, 1470: 8
   }],
-  CAR.GENESIS_G90: [{
+  CAR.GENESIS_G90_2019: [{
     67: 8, 127: 8, 304: 8, 320: 8, 339: 8, 356: 4, 358: 6, 359: 8, 544: 8, 549: 8, 593: 8, 608: 8, 688: 5, 809: 8, 832: 8, 854: 7, 870: 7, 871: 8, 872: 8, 897: 8, 902: 8, 903: 8, 905: 8, 909: 8, 916: 8, 1040: 8, 1042: 8, 1056: 8, 1057: 8, 1064: 8, 1078: 4, 1107: 5, 1113: 8, 1136: 8, 1141: 8, 1142: 8, 1143: 8, 1150: 4, 1151: 8, 1155: 8, 1156: 8, 1157: 4, 1162: 8, 1164: 8, 1168: 7, 1170: 8, 1173: 8, 1180: 8, 1184: 8, 1186: 2, 1191: 2, 1210: 8, 1265: 4, 1280: 1, 1281: 3, 1287: 4, 1290: 8, 1292: 8, 1294: 8, 1312: 8, 1322: 8, 1342: 6, 1345: 8, 1348: 8, 1363: 8, 1369: 8, 1371: 8, 1378: 8, 1384: 8, 1407: 8, 1419: 8, 1427: 6, 1434: 2, 1456: 4, 1470: 8, 2003: 8, 2004: 8, 2011: 8, 2012: 8
   }],
 
@@ -97,9 +97,9 @@ FEATURES = {
   "use_elect_gears": {CAR.GRANDEUR_IG_HEV, CAR.GRANDEUR_IG_FL_HEV, CAR.K7_HEV},
 
   # these cars use the FCA11 message for the AEB and FCW signals, all others use SCC12
-  "use_fca": {CAR.GENESIS_G90, CAR.MOHAVE, CAR.K9},
-  "send_lfa_mfa": {CAR.GENESIS_G90, CAR.GRANDEUR_IG_FL, CAR.GRANDEUR_IG_FL_HEV, CAR.MOHAVE, CAR.K9},
-  "send_mdps12": {CAR.GENESIS_G90, CAR.K9},
+  "use_fca": {CAR.GENESIS_G90_2019, CAR.MOHAVE, CAR.K9},
+  "send_lfa_mfa": {CAR.GENESIS_G90_2019, CAR.GRANDEUR_IG_FL, CAR.GRANDEUR_IG_FL_HEV, CAR.MOHAVE, CAR.K9},
+  "send_mdps12": {CAR.GENESIS_G90_2019, CAR.K9},
 }
 
 
@@ -109,7 +109,7 @@ EV_CAR = {}
 # these cars require a special panda safety mode due to missing counters and checksums in the messages
 LEGACY_SAFETY_MODE_CAR = {
   CAR.GRANDEUR_IG, CAR.GRANDEUR_IG_HEV, CAR.GRANDEUR_IG_FL, CAR.GRANDEUR_IG_FL_HEV, CAR.GENESIS_EQ900, CAR.GENESIS_EQ900_L,
-  CAR.GENESIS_G90, CAR.MOHAVE, CAR.K7, CAR.K7_HEV, CAR.K9
+  CAR.GENESIS_G90_2019, CAR.MOHAVE, CAR.K7, CAR.K7_HEV, CAR.K9
 }
 
 
@@ -121,7 +121,7 @@ DBC = {
 
   CAR.GENESIS_EQ900: dbc_dict('hyundai_kia_generic', None),
   CAR.GENESIS_EQ900_L: dbc_dict('hyundai_kia_generic', None),
-  CAR.GENESIS_G90: dbc_dict('hyundai_kia_generic', None),
+  CAR.GENESIS_G90_2019: dbc_dict('hyundai_kia_generic', None),
 
   CAR.MOHAVE: dbc_dict('hyundai_kia_generic', None),
   CAR.K7: dbc_dict('hyundai_kia_generic', None),

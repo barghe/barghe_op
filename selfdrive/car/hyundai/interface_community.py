@@ -24,7 +24,7 @@ def get_params(candidate, ret):
   elif candidate == CAR.GENESIS_EQ900_L:
     ret.mass = 2290
     ret.wheelbase = 3.45
-  elif candidate == CAR.GENESIS_G90:
+  elif candidate == CAR.GENESIS_G90_2019:
     ret.mass = 2150
     ret.wheelbase = 3.16
   elif candidate == CAR.MOHAVE:
