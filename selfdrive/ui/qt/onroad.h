@@ -51,6 +51,9 @@ protected:
   FirstOrderFilter fps_filter;
   std::unique_ptr<PubMaster> pm;
 
+  int skip_frame_count = 0;
+  bool wide_cam_requested = false;
+
   // neokii
   void drawIcon(QPainter &p, int x, int y, QPixmap &img, QBrush bg, float opacity);
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
