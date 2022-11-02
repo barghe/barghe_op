@@ -324,9 +324,15 @@ class CarState(CarStateBase):
       ("AVH_LAMP", "TCS15"),
 
       ("CR_Mdps_StrColTq", "MDPS12"),
+      ("CF_Mdps_Def", "MDPS12"),
       ("CF_Mdps_ToiActive", "MDPS12"),
       ("CF_Mdps_ToiUnavail", "MDPS12"),
       ("CF_Mdps_ToiFlt", "MDPS12"),
+      ("CF_Mdps_MsgCount2", "MDPS12"),
+      ("CF_Mdps_Chksum2", "MDPS12"),
+      ("CF_Mdps_SErr", "MDPS12"),
+      ("CR_Mdps_StrTq", "MDPS12"),
+      ("CF_Mdps_FailStat", "MDPS12"),
       ("CR_Mdps_OutTq", "MDPS12"),
 
       ("SAS_Angle", "SAS11"),
