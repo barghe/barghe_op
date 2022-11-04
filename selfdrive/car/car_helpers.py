@@ -182,6 +182,8 @@ def get_car(logcan, sendcan, num_pandas=1):
   if selected_car:
     candidate = selected_car.decode("utf-8")
 
+  print('candidate !!!!!!!!!', candidate)
+
   CarInterface, CarController, CarState = interfaces[candidate]
   CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long)
   CP.carVin = vin
