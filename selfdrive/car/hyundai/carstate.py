@@ -319,6 +319,7 @@ class CarState(CarStateBase):
       ("CF_Clu_VehicleSpeed", "CLU15"),
 
       ("ACCEnable", "TCS13"),
+      ("ACC_REQ", "TCS13"),
       ("BrakeLight", "TCS13"),
       ("aBasis", "TCS13"),
       ("DriverBraking", "TCS13"),
