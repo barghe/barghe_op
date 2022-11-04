@@ -140,6 +140,14 @@
         <source>Haptic feedback when a speed camera is detected</source>
         <translation>제한속도 카메라가 있으면 스티어링 휠의 진동을 사용합니다.</translation>
     </message>
+    <message>
+        <source>Use lane lines instead of e2e</source>
+        <translation>e2e 대신 차선 사용</translation>
+    </message>
+    <message>
+        <source>Show Debug Message</source>
+        <translation>디버그 메세지 출력</translation>
+    </message>
 </context>
 <context>
     <name>ConfirmationDialog</name>
