@@ -373,9 +373,9 @@ static int hyundai_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
     bool is_lkas_msg = addr == 832;
     bool is_lfahda_msg = addr == 1157;
     bool is_scc_msg = addr == 1056 || addr == 1057 || addr == 1290 || addr == 905;
-    //bool is_fca_msg = addr == 909 || addr == 1155;
+    bool is_fca_msg = addr == 909 || addr == 1155;
 
-    bool block_msg = is_lkas_msg || is_lfahda_msg || is_scc_msg; //|| is_fca_msg;
+    bool block_msg = is_lkas_msg || is_lfahda_msg || is_scc_msg || is_fca_msg;
     if (!block_msg) {
       bus_fwd = 0;
     }
@@ -387,7 +387,7 @@ static int hyundai_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
           //hyundai_fwd_mdps12(to_fwd);
         }
       }
-      else if(is_scc_msg) {
+      else if(is_scc_msg || is_fca_msg) {
         if(now - last_ts_scc12_received_from_op >= 400000)
           bus_fwd = 0;
       }
