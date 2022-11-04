@@ -1,6 +1,7 @@
 import numpy as np
 from common.realtime import sec_since_boot, DT_MDL
 from common.numpy_fast import interp
+from selfdrive.controls.lib.lane_planner import LanePlanner
 from selfdrive.controls.ntune import ntune_common_get
 from system.swaglog import cloudlog
 from selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import LateralMpc
@@ -28,6 +29,10 @@ STEERING_RATE_COST = 800.0
 class LateralPlanner:
   def __init__(self, CP):
     self.DH = DesireHelper()
+    self.LP = LanePlanner()
+
+    from common.params import Params
+    self.use_lanelines = Params().get_bool('UseLanelines')
 
     # Vehicle model parameters used to calculate lateral movement of car
     self.factor1 = CP.wheelbase - CP.centerToFront
@@ -55,6 +60,7 @@ class LateralPlanner:
 
     # Parse model predictions
     md = sm['modelV2']
+    self.LP.parse_model(md)
     if len(md.position.x) == TRAJECTORY_SIZE and len(md.orientation.x) == TRAJECTORY_SIZE:
       self.path_xyz = np.column_stack([md.position.x, md.position.y, md.position.z])
       self.t_idxs = np.array(md.position.t)
@@ -69,8 +75,13 @@ class LateralPlanner:
     lane_change_prob = self.l_lane_change_prob + self.r_lane_change_prob
     self.DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob)
 
-    d_path_xyz = self.path_xyz
+    if self.use_lanelines:
+      d_path_xyz = self.LP.get_d_path(self.v_ego, self.t_idxs, self.path_xyz)
+    else:
+      d_path_xyz = self.path_xyz
+
     d_path_xyz[:, 1] += ntune_common_get('pathOffset')
+
     self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
                              LATERAL_ACCEL_COST, LATERAL_JERK_COST,
                              STEERING_RATE_COST)
@@ -128,7 +139,7 @@ class LateralPlanner:
     lateralPlan.solverExecutionTime = self.lat_mpc.solve_time
 
     lateralPlan.desire = self.DH.desire
-    lateralPlan.useLaneLines = False
+    lateralPlan.useLaneLines = self.use_lanelines
     lateralPlan.laneChangeState = self.DH.lane_change_state
     lateralPlan.laneChangeDirection = self.DH.lane_change_direction
 
