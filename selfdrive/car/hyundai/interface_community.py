@@ -4,7 +4,12 @@ from selfdrive.car.hyundai.values_community import CAR
 def get_params(candidate, ret):
   tire_stiffness_factor = 0.8
 
-  if candidate in [CAR.GRANDEUR_IG, CAR.GRANDEUR_IG_HEV]:
+  if candidate in CAR.ELANTRA_GT_I30:
+    ret.mass = 1275. + STD_CARGO_KG
+    ret.wheelbase = 2.7
+    tire_stiffness_factor = 0.7
+    ret.centerToFront = ret.wheelbase * 0.4
+  elif candidate in [CAR.GRANDEUR_IG, CAR.GRANDEUR_IG_HEV]:
     ret.mass = 1570. + STD_CARGO_KG
     ret.wheelbase = 2.845
     ret.steerRatio = 16.
