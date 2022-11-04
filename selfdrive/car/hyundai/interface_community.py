@@ -7,6 +7,7 @@ def get_params(candidate, ret):
   if candidate in CAR.ELANTRA_GT_I30:
     ret.mass = 1275. + STD_CARGO_KG
     ret.wheelbase = 2.7
+    ret.steerRatio = 16.
     tire_stiffness_factor = 0.7
     ret.centerToFront = ret.wheelbase * 0.4
   elif candidate in [CAR.GRANDEUR_IG, CAR.GRANDEUR_IG_HEV]:
