@@ -193,10 +193,11 @@ class CarController:
         # TODO: unclear if this is needed
         jerk = 3.0 if actuators.longControlState == LongCtrlState.pid else 1.0
 
-        start_boost = interp(CS.out.vEgo, [CREEP_SPEED, 2 * CREEP_SPEED], [0.2, 0.0])
-        is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
-        boost = start_boost * is_accelerating
-        accel += boost
+        if CC.longActive and CS.out.cruiseState.enabled:
+          start_boost = interp(CS.out.vEgo, [CREEP_SPEED, 2 * CREEP_SPEED], [0.2, 0.0])
+          is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
+          boost = start_boost * is_accelerating
+          accel += boost
 
         if self.CP.sccBus == 0:
           can_sends.extend(hyundaican.create_acc_commands(self.packer, CC.enabled, accel, jerk, int(self.frame / 2),
