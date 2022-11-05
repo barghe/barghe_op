@@ -313,6 +313,14 @@
         <source>Are you sure you want to rebuild?</source>
         <translation>전체 재빌드를 하시겠습니까?</translation>
     </message>
+    <message>
+        <source>Reset</source>
+        <translation>초기화</translation>
+    </message>
+    <message>
+        <source>Review</source>
+        <translation>리뷰</translation>
+    </message>
 </context>
 <context>
     <name>DriveStats</name>
@@ -539,6 +547,17 @@ location set</source>
     </message>
 </context>
 <context>
+    <name>ParamControl</name>
+    <message>
+        <source>Ok</source>
+        <translation>확인</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+</context>
+<context>
     <name>PrimeAdWidget</name>
     <message>
         <source>Upgrade Now</source>
@@ -664,7 +683,7 @@ location set</source>
     <name>RichTextDialog</name>
     <message>
         <source>Ok</source>
-        <translation>확인</translation>
+        <translation type="vanished">확인</translation>
     </message>
 </context>
 <context>
@@ -944,6 +963,10 @@ location set</source>
         <source>CHECK</source>
         <translation>확인</translation>
     </message>
+    <message>
+        <source>Uninstall</source>
+        <translation>제거</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -1145,6 +1168,10 @@ location set</source>
     <message>
         <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
         <translation>wifi 네트워크 저장안함 &quot;%1&quot;?</translation>
+    </message>
+    <message>
+        <source>Forget</source>
+        <translation>저장안함</translation>
     </message>
 </context>
 </TS>
