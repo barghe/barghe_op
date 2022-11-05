@@ -39,6 +39,7 @@ def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible,
   values["aReqRaw"] = accel
   values["aReqValue"] = accel
   values["CR_VSM_Alive"] = idx % 0xF
+  values["CR_VSM_ChkSum"] = 0
   scc12_dat = packer.make_can_msg("SCC12", 0, values)[2]
   values["CR_VSM_ChkSum"] = 0x10 - sum(sum(divmod(i, 16)) for i in scc12_dat) % 0x10
 
