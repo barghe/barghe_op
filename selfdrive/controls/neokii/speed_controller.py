@@ -4,10 +4,9 @@ import numpy as np
 from common.numpy_fast import clip, interp
 from cereal import car
 from common.conversions import Conversions as CV
-from selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX
-from selfdrive.controls.lib.longcontrol import LongCtrlState
+from selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN, V_CRUISE_INITIAL
 from selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import AUTO_TR_CRUISE_GAP
-from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
+from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI
 from selfdrive.car.hyundai.values import Buttons
 from common.params import Params
 from selfdrive.controls.lib.lateral_planner import TRAJECTORY_SIZE
@@ -18,10 +17,10 @@ SYNC_MARGIN = 3.
 CREEP_SPEED = 2.3
 
 
-
 MIN_CURVE_SPEED = 32. * CV.KPH_TO_MS
 
 EventName = car.CarEvent.EventName
+ButtonType = car.CarState.ButtonEvent.Type
 
 
 class SpeedController:
@@ -62,6 +61,10 @@ class SpeedController:
     self.real_set_speed_kph = 0.
 
     self.prev_cruise_enabled = False
+
+    self.prev_button = ButtonType.unknown
+    self.button_count = 0
+    self.long_pressed = False
 
   def kph_to_clu(self, kph):
     return int(kph * CV.KPH_TO_MS * self.speed_conv_to_clu)
@@ -104,8 +107,6 @@ class SpeedController:
     self.slowing_down = False
     self.slowing_down_alert = False
     self.slowing_down_sound_alert = False
-
-    self.gapAdjust = 4
 
   def inject_events(self, CS, events):
 
@@ -154,7 +155,7 @@ class SpeedController:
       self.slowing_down_alert = False
       self.slowing_down = False
 
-    self.update_max_speed(int(round(max_speed_clu, 1)), curv_limit != 0 and curv_limit == int(max_speed_clu))
+    self.update_max_speed(int(round(max_speed_clu)), curv_limit != 0 and curv_limit == int(max_speed_clu))
     return max_speed_clu
 
   def get_lead(self, sm):
@@ -194,13 +195,13 @@ class SpeedController:
 
   def cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
 
-    override_speed = 0.
+    override_speed = -1
 
     if not self.long_control:
       if CS.gasPressed and self.sync_set_speed_while_gas_pressed and not cruise_btn_pressed:
         if clu_speed + SYNC_MARGIN > self.kph_to_clu(v_cruise_kph):
           set_speed = clip(clu_speed + SYNC_MARGIN, self.min_set_speed_clu, self.max_set_speed_clu)
-          v_cruise_kph = set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH
+          v_cruise_kph = int(round(set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH))
           override_speed = v_cruise_kph
 
       self.target_speed = self.kph_to_clu(v_cruise_kph)
@@ -233,34 +234,49 @@ class SpeedController:
       return Buttons.NONE
     return Buttons.RES_ACCEL if error > 0 else Buttons.SET_DECEL
 
+  def initialize_v_cruise(self, v_ego, buttonEvents, v_cruise_last):
+    for b in buttonEvents:
+      # 250kph or above probably means we never had a set speed
+      if b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) and v_cruise_last < 250:
+        return v_cruise_last
+
+    return int(round(clip(v_ego * CV.MS_TO_KPH, V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)))
 
   def update_v_cruise(self, controls, CS):  # called by controlds's state_transition
 
-    v_cruise_kph = controls.v_cruise_kph
-    sm = controls.sm
+    manage_button = not self.CP.openpilotLongitudinalControl or not self.CP.pcmCruise
 
-    self.real_set_speed_kph = v_cruise_kph
+    if CS.cruiseState.enabled:
+      if manage_button:
+        v_cruise_kph = self.update_cruise_button(controls.v_cruise_kph, CS.buttonEvents, controls.enabled,
+                                                 controls.is_metric)
+      else:
+        v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
+    else:
+      v_cruise_kph = V_CRUISE_INITIAL
 
-    # mph or kph
-    clu_speed = CS.vEgoCluster * self.speed_conv_to_clu
-
-    self.cal_max_speed(CS, sm, clu_speed, v_cruise_kph)
-    self.cruise_speed_kph = float(clip(v_cruise_kph, V_CRUISE_MIN,
-                                       self.max_speed_clu * self.speed_conv_to_ms * CV.MS_TO_KPH))
-
-    """v_cruise_kph = self.cruise_speed_kph
     if self.prev_cruise_enabled != CS.cruiseState.enabled:
       self.prev_cruise_enabled = CS.cruiseState.enabled
 
-      if not CS.cruiseState.enabled:
-        v_cruise_kph = 0"""
+      if CS.cruiseState.enabled:
+        if not self.CP.pcmCruise:
+          v_cruise_kph = self.initialize_v_cruise(CS.vEgo, CS.buttonEvents, controls.v_cruise_kph_last)
+        else:
+          v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
 
-    if not CS.cruiseState.enabled:
-      controls.LoC.reset(v_pid=CS.vEgo)
+    self.real_set_speed_kph = v_cruise_kph
+
+    if CS.cruiseState.enabled:
+      clu_speed = CS.vEgoCluster * self.speed_conv_to_clu
+
+      self.cal_max_speed(CS, controls.sm, clu_speed, v_cruise_kph)
+      self.cruise_speed_kph = float(clip(v_cruise_kph, V_CRUISE_MIN,
+                                         self.max_speed_clu * self.speed_conv_to_ms * CV.MS_TO_KPH))
     else:
-      v_cruise_kph = self.cruise_speed_kph
+      self.reset()
+      controls.LoC.reset(v_pid=CS.vEgo)
 
-    return v_cruise_kph, self.real_set_speed_kph
+    return v_cruise_kph
 
   def update_can(self, enabled, CC, CS, sm, can_sends):
 
@@ -288,7 +304,7 @@ class SpeedController:
       self.wait_timer -= 1
     elif ascc_enabled and CS.vEgo > 0.1 and CruiseStateManager.instance().is_set_speed_spam_allowed(self.CP):
       if self.alive_timer == 0:
-        current_set_speed_clu = int(round(CS.cruiseState.speed * self.speed_conv_to_clu, 1))
+        current_set_speed_clu = int(round(CS.cruiseState.speed * self.speed_conv_to_clu))
         self.btn = self.get_button(current_set_speed_clu)
         self.alive_count = self.get_alive_count()
 
@@ -312,10 +328,38 @@ class SpeedController:
 
     return new_v_cruise_kph
 
+  def update_cruise_button(self, v_cruise_kph, buttonEvents, enabled, metric):
+
+    if enabled:
+      if self.button_count:
+        self.button_count += 1
+      for b in buttonEvents:
+        if b.pressed and not self.button_count and (b.type == ButtonType.accelCruise or b.type == ButtonType.decelCruise):
+          self.button_count = 1
+          self.prev_button = b.type
+        elif not b.pressed and self.button_count:
+          if not self.long_pressed and b.type == ButtonType.accelCruise:
+            v_cruise_kph += 1 if metric else 1 * CV.MPH_TO_KPH
+          elif not self.long_pressed and b.type == ButtonType.decelCruise:
+            v_cruise_kph -= 1 if metric else 1 * CV.MPH_TO_KPH
+          self.long_pressed = False
+          self.button_count = 0
+      if self.button_count > 70:
+        self.long_pressed = True
+        V_CRUISE_DELTA = V_CRUISE_DELTA_KM if metric else V_CRUISE_DELTA_MI
+        if self.prev_button == ButtonType.accelCruise:
+          v_cruise_kph += V_CRUISE_DELTA - v_cruise_kph % V_CRUISE_DELTA
+        elif self.prev_button == ButtonType.decelCruise:
+          v_cruise_kph -= V_CRUISE_DELTA - -v_cruise_kph % V_CRUISE_DELTA
+        self.button_count %= 70
+      v_cruise_kph = clip(v_cruise_kph, V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
+
+    return v_cruise_kph
+
   def update_message(self, c, CC, CS):
 
-    CC.cruiseMaxSpeed = CS.cruiseState.speed * (CV.MS_TO_KPH if c.is_metric else CV.MS_TO_MPH)
-    CC.applyMaxSpeed = c.v_cruise_kph
+    CC.cruiseMaxSpeed = self.real_set_speed_kph
+    CC.applyMaxSpeed = self.cruise_speed_kph
     CC.autoTrGap = AUTO_TR_CRUISE_GAP
     CC.sccBus = c.CP.sccBus
     CC.steerRatio = c.VM.sR
@@ -345,3 +389,4 @@ class SpeedController:
       debug_text += "Lead: {:.1f}/{:.1f}/{:.1f}".format(radar_dist, vision_dist, (radar_dist - vision_dist))
 
       CC.debugText = debug_text
+
