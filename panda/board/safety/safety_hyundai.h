@@ -1,5 +1,4 @@
 #include "safety_hyundai_common.h"
-#include "safety_hyundai_community_common.h"
 
 const SteeringLimits HYUNDAI_STEERING_LIMITS = {
   .max_steer = 384,
@@ -186,10 +185,6 @@ static uint32_t hyundai_compute_checksum(CANPacket_t *to_push) {
   return chksum;
 }
 
-int MDPS12_checksum = -1;
-int MDPS12_cnt = 0;
-int Last_StrColTq = 0;
-
 static int hyundai_rx_hook(CANPacket_t *to_push) {
 
   bool valid = addr_safety_check(to_push, &hyundai_rx_checks,
@@ -259,12 +254,12 @@ static int hyundai_rx_hook(CANPacket_t *to_push) {
     generic_rx_checks(stock_ecu_detected);
   }
 
-  hyundai_mdps12_checksum(to_push);
   return valid;
 }
 
 uint32_t last_ts_lkas11_received_from_op = 0;
 uint32_t last_ts_scc12_received_from_op = 0;
+uint32_t last_ts_mdps12_received_from_op = 0;
 
 static int hyundai_tx_hook(CANPacket_t *to_send, bool longitudinal_allowed) {
 
@@ -349,11 +344,14 @@ static int hyundai_tx_hook(CANPacket_t *to_send, bool longitudinal_allowed) {
   if(tx) {
     bool is_lkas11_msg = addr == 832;
     bool is_scc12_msg = addr == 1057;
+    bool is_mdps12_msg = addr == 593;
 
     if(is_lkas11_msg)
       last_ts_lkas11_received_from_op = microsecond_timer_get();
     else if(is_scc12_msg)
       last_ts_scc12_received_from_op = microsecond_timer_get();
+    else if(is_mdps12_msg)
+      last_ts_mdps12_received_from_op = microsecond_timer_get();
   }
 
   return tx;
@@ -364,9 +362,17 @@ static int hyundai_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);
 
+  uint32_t now = microsecond_timer_get();
+
   // forward cam to ccan and viceversa, except lkas cmd
   if (bus_num == 0) {
     bus_fwd = 2;
+
+    if(addr == 593) {
+      if(now - last_ts_mdps12_received_from_op < 200000) {
+        bus_fwd = -1;
+      }
+    }
   }
 
   if (bus_num == 2) {
@@ -380,11 +386,9 @@ static int hyundai_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
       bus_fwd = 0;
     }
     else {
-      uint32_t now = microsecond_timer_get();
       if(is_lkas_msg || is_lfahda_msg) {
         if(now - last_ts_lkas11_received_from_op >= 200000) {
           bus_fwd = 0;
-          //hyundai_fwd_mdps12(to_fwd);
         }
       }
       else if(is_scc_msg) {
