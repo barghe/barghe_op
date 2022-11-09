@@ -64,7 +64,6 @@ class CarController:
     self.last_lead_distance = 0
     self.resume_wait_timer = 0
 
-    self.scc12_cnt = -1
     self.prev_accel_req_value = 0
 
     from common.params import Params
