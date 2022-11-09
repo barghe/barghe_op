@@ -290,8 +290,8 @@ class CarInterface(CarInterfaceBase):
         ret.radarOffCan = ret.sccBus == -1
 
       if ret.sccBus == 2:
-        ret.hasScc13 = 1290 in fingerprint[ret.sccBus]
-        ret.hasScc14 = 905 in fingerprint[ret.sccBus]
+        ret.hasScc13 = 1290 in fingerprint[0] or 1290 in fingerprint[2]
+        ret.hasScc14 = 905 in fingerprint[0] or 905 in fingerprint[2]
         ret.openpilotLongitudinalControl = True
         ret.radarOffCan = False
         ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiLegacy)]
