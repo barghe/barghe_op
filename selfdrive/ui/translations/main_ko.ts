@@ -118,7 +118,7 @@
     </message>
     <message>
         <source>Npilot controls Cruise State (Experimental)</source>
-        <translation>크루즈 상태 제어 (실험적 기능)</translation>
+        <translation type="vanished">크루즈 상태 제어 (실험적 기능)</translation>
     </message>
     <message>
         <source>LDWS only</source>
@@ -147,6 +147,10 @@
     <message>
         <source>Openpilot controls cruise on/off, gap and set speed.</source>
         <translation>차가 아닌 openpilot이 크루즈 상태를 제어합니다. (크루즈 켜기/끄기, 설정속도/유지거리 조절)</translation>
+    </message>
+    <message>
+        <source>Openpilot controls Cruise State (Experimental)</source>
+        <translation>크루즈 상태 제어</translation>
     </message>
 </context>
 <context>
@@ -1109,7 +1113,7 @@ location set</source>
     </message>
     <message>
         <source>    openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;.    Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode.     Experimental features are listed below:    &lt;br&gt;     &lt;h4&gt;🌮 End-to-End Longitudinal Control 🌮&lt;/h4&gt;     Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. Since the driving model decides which speed to drive, the set speed will only act as an upper bound.</source>
-        <translation type="unfinished"></translation>
+        <translation>오픈파일럿은 기본적으로 &lt;b&gt;chill 모드&lt;/b&gt;로 동작합니다. 실험 모드는 chill 모드가 아닌 &lt;b&gt;알파수준&lt;/b&gt;의 기능들입니다.&lt;br&gt;실험적 기능은 아래와 같습니다.&lt;br&gt;&lt;br&gt;&lt;h4&gt;🌮 End-to-End(종단간) 롱컨트롤 🌮&lt;/h4&gt;&lt;br&gt;모델이 가감속을 수행하며 적색 신호등및 정지 신호에 대한 감속및 정지를 포함하여 사람처럼 운전합니다.&lt;br&gt;모델이 주행할 속도를 결정하므로 설정된 속도는 상한선으로만 작용합니다.</translation>
     </message>
     <message>
         <source>openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control on this car. Enable this to switch to openpilot longitudinal control.</source>
@@ -1117,7 +1121,7 @@ location set</source>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is experimental for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation type="unfinished"></translation>
+        <translation>경고: openpilot long control은 실험적 기능이며 차량의 AEB(긴급제동)이 비활성화됩니다.</translation>
     </message>
 </context>
 <context>
