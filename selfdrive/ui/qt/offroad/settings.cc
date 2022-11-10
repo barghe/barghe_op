@@ -532,9 +532,9 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
     {
       "CruiseStateControl",
       tr("Npilot controls Cruise State (Experimental)"),
-      tr("Npilot controls cruise on/off, gap and set speed."),
+      tr("Npilot controls cruise on/off, gap and set speed.<br>It becomes a cruise set without conditions, so do not use it if you do not understand it correctly."),
       "../assets/offroad/icon_road.png",
-      false,
+      true,
     },
     {
       "IsLdwsCar",

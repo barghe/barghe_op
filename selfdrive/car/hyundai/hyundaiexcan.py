@@ -1,5 +1,7 @@
 import crcmod
 
+from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
+
 hyundai_checksum = crcmod.mkCrcFun(0x11D, initCrc=0xFD, rev=False, xorOut=0xdf)
 
 def create_mdps12(packer, frame, mdps12):
@@ -27,6 +29,10 @@ def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible,
   values["VSetDis"] = set_speed if cruise_enabled else 0
   values["AliveCounterACC"] = idx % 0x10
   values["ObjValid"] = 1 # close lead makes controls tighter
+
+  if CruiseStateManager.instance().cruise_state_control:
+    values["DriverAlertDisplay"] = 0
+
   #values["ACC_ObjStatus"] = 1,  # close lead makes controls tighter
   #values["ACC_ObjLatPos"] = 0,
   #values["ACC_ObjRelSpd"] = 10,
