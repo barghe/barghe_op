@@ -11,6 +11,7 @@ from common.params import Params, put_nonblocking
 import cereal.messaging as messaging
 from common.conversions import Conversions as CV
 from panda import ALTERNATIVE_EXPERIENCE
+from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from selfdrive.controls.ntune import ntune_common_enabled, ntune_common_get
 from selfdrive.controls.neokii.speed_controller import SpeedController
 from system.swaglog import cloudlog
@@ -431,9 +432,12 @@ class Controls:
       v_future = speeds[-1]
     else:
       v_future = 100.0
-    #if CS.brakePressed and v_future >= self.CP.vEgoStarting \
-    #  and self.CP.openpilotLongitudinalControl and CS.vEgo < 0.3:
-    #  self.events.add(EventName.noTarget)
+    if CS.brakePressed and v_future >= self.CP.vEgoStarting \
+      and self.CP.openpilotLongitudinalControl and CS.vEgo < 0.3:
+
+      if CruiseStateManager.instance().cruise_state_control and CruiseStateManager.instance().enabled:
+        self.events.add(EventName.noTargetAcc)
+        CruiseStateManager.instance().enabled = False
 
   def data_sample(self):
     """Receive data from sockets and update carState"""

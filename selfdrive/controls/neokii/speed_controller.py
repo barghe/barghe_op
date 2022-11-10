@@ -6,7 +6,8 @@ from cereal import car
 from common.conversions import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN, V_CRUISE_INITIAL
 from selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import AUTO_TR_CRUISE_GAP
-from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI
+from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI, \
+  V_CRUISE_MIN_CRUISE_STATE
 from selfdrive.car.hyundai.values import Buttons
 from common.params import Params
 from selfdrive.controls.lib.lateral_planner import TRAJECTORY_SIZE
@@ -272,6 +273,10 @@ class SpeedController:
       self.cal_max_speed(CS, controls.sm, clu_speed, v_cruise_kph)
       self.cruise_speed_kph = float(clip(v_cruise_kph, V_CRUISE_MIN,
                                          self.max_speed_clu * self.speed_conv_to_ms * CV.MS_TO_KPH))
+
+      if CruiseStateManager.instance().cruise_state_control:
+        self.cruise_speed_kph = min(self.cruise_speed_kph, max(self.real_set_speed_kph, V_CRUISE_MIN_CRUISE_STATE))
+
     else:
       self.reset()
       controls.LoC.reset(v_pid=CS.vEgo)

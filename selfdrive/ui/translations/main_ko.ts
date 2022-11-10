@@ -145,8 +145,8 @@
         <translation>디버그 메세지 출력</translation>
     </message>
     <message>
-        <source>Npilot controls cruise on/off, gap and set speed.&lt;br&gt;It becomes a cruise set without conditions, so do not use it if you do not understand it correctly.</source>
-        <translation>주의!! npilot이 크루즈 상태를 제어합니다. 크루즈 켜기/끄기, 설정속도/유지거리 조절&lt;br&gt;조건없이 크루즈 셋이 되기 때문에 정확히 이해를 하지 못한 경우 사용하지 마세요.</translation>
+        <source>Openpilot controls cruise on/off, gap and set speed.</source>
+        <translation>차가 아닌 openpilot이 크루즈 상태를 제어합니다. (크루즈 켜기/끄기, 설정속도/유지거리 조절)</translation>
     </message>
 </context>
 <context>

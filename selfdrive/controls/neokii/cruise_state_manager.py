@@ -4,13 +4,13 @@ from common.numpy_fast import clip
 from selfdrive.car import create_button_event
 from common.conversions import Conversions as CV
 from common.params import Params
-from selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN
+from selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, V_CRUISE_ENABLE_MIN
+
+V_CRUISE_MIN_CRUISE_STATE = 10
 
 V_CRUISE_DELTA_MI = 5 * CV.MPH_TO_KPH
 V_CRUISE_DELTA_KM = 10
-
 ButtonType = car.CarState.ButtonEvent.Type
-
 
 def is_radar_disabler(CP):
   return CP.openpilotLongitudinalControl and CP.sccBus == 0
@@ -153,18 +153,18 @@ class CruiseStateManager:
           if CS.vEgoCluster < 0.1:
             v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
           else:
-            v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
+            v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
         elif btn == ButtonType.accelCruise and not self.enabled:
           self.enabled = True
           v_cruise_kph = clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
 
     if btn == ButtonType.gapAdjustCruise and not self.btn_long_pressed:
-      self.gapAdjust += 1
-      if self.gapAdjust > 4:
-        self.gapAdjust = 1
+      self.gapAdjust -= 1
+      if self.gapAdjust < 1:
+        self.gapAdjust = 4
 
     if btn == ButtonType.cancel:
       self.enabled = False
 
-    v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
+    v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS
