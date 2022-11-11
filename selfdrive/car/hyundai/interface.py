@@ -10,6 +10,7 @@ from selfdrive.car import STD_CARGO_KG, create_button_event, scale_rot_inertia, 
 from selfdrive.car.interfaces import CarInterfaceBase
 from selfdrive.car.disable_ecu import disable_ecu
 from selfdrive.controls.neokii.cruise_state_manager import is_radar_disabler
+from common.params import Params
 
 Ecu = car.CarParams.Ecu
 ButtonType = car.CarState.ButtonEvent.Type
@@ -281,7 +282,6 @@ class CarInterface(CarInterfaceBase):
       else:
         ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundai, 0)]
 
-      from common.params import Params
       ret.sccBus = 2 if (candidate in CAMERA_SCC_CAR or Params().get_bool('SccOnBus2')) else 0
       ret.hasAutoHold = 1151 in fingerprint[0]
       ret.hasLfaHda = 1157 in fingerprint[0]
