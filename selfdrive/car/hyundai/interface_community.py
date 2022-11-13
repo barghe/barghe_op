@@ -43,7 +43,7 @@ def get_params(candidate, ret):
     ret.wheelbase = 2.80
     ret.steerRatio = 15.5
     tire_stiffness_factor = 0.7
-  elif candidate in [CAR.K5_2021, CAR.K5_HEV_2022]:
+  elif candidate == CAR.K5_HEV_2022:
     ret.mass = 1515. + STD_CARGO_KG
     ret.wheelbase = 2.85
     ret.steerRatio = 15.5
