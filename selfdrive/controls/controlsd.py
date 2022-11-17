@@ -752,8 +752,8 @@ class Controls:
 
       v = self.speed_controller.update_can(self.enabled, CC, CS, self.sm, can_sends)
       if v > 0:
-        self.v_cruise_kph = v
-        self.v_cruise_cluster_kph = v
+        self.v_cruise_helper.v_cruise_kph = v
+        self.v_cruise_helper.v_cruise_cluster_kph = v
 
       self.speed_controller.update_message(self, CC, CS)
 

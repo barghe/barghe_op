@@ -72,7 +72,6 @@ class CarController:
     self.e2e_long = params.get_bool('ExperimentalMode')
 
   def update(self, CC, CS):
-    CC.cruiseControl.cancel = False # mad mode
     actuators = CC.actuators
     hud_control = CC.hudControl
 
