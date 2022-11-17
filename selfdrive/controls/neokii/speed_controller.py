@@ -249,7 +249,7 @@ class SpeedController:
 
     if CS.cruiseState.enabled:
       if manage_button:
-        v_cruise_kph = self.update_cruise_button(controls.v_cruise_kph, CS.buttonEvents, controls.enabled,
+        v_cruise_kph = self.update_cruise_button(controls.v_cruise_helper.v_cruise_kph, CS.buttonEvents, controls.enabled,
                                                  controls.is_metric)
       else:
         v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
@@ -261,7 +261,7 @@ class SpeedController:
 
       if CS.cruiseState.enabled:
         if not self.CP.pcmCruise:
-          v_cruise_kph = self.initialize_v_cruise(CS.vEgo, CS.buttonEvents, controls.v_cruise_kph_last)
+          v_cruise_kph = self.initialize_v_cruise(CS.vEgo, CS.buttonEvents, controls.v_cruise_helper.v_cruise_kph_last)
         else:
           v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
 
