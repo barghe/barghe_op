@@ -15,7 +15,7 @@ from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from selfdrive.controls.ntune import ntune_common_enabled, ntune_common_get
 from selfdrive.controls.neokii.speed_controller import SpeedController
 from system.swaglog import cloudlog
-from system.version import is_tested_branch, get_short_branch
+from system.version import is_release_branch, get_short_branch
 from selfdrive.boardd.boardd import can_list_to_can_capnp
 from selfdrive.car.car_helpers import get_car, get_startup_event, get_one_can
 from selfdrive.controls.lib.lateral_planner import CAMERA_OFFSET
@@ -135,7 +135,7 @@ class Controls:
       safety_config.safetyModel = car.CarParams.SafetyModel.noOutput
       self.CP.safetyConfigs = [safety_config]
 
-    if is_tested_branch():
+    if is_release_branch():
       self.CP.experimentalLongitudinalAvailable = False
 
     # Write CarParams for radard
@@ -280,12 +280,11 @@ class Controls:
     #  self.events.add(EventName.highCpuUsage)
 
     # Alert if fan isn't spinning for 5 seconds
-    if self.sm['peripheralState'].pandaType == PandaType.dos:
-      if self.sm['peripheralState'].fanSpeedRpm == 0 and self.sm['deviceState'].fanSpeedPercentDesired > 50:
-        if (self.sm.frame - self.last_functional_fan_frame) * DT_CTRL > 5.0:
-          self.events.add(EventName.fanMalfunction)
-      else:
-        self.last_functional_fan_frame = self.sm.frame
+    if self.sm['peripheralState'].fanSpeedRpm == 0 and self.sm['deviceState'].fanSpeedPercentDesired > 50:
+      if (self.sm.frame - self.last_functional_fan_frame) * DT_CTRL > 5.0:
+        self.events.add(EventName.fanMalfunction)
+    else:
+      self.last_functional_fan_frame = self.sm.frame
 
     # Handle calibration status
     cal_status = self.sm['liveCalibration'].calStatus
