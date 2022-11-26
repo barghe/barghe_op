@@ -5,7 +5,6 @@ from common.numpy_fast import clip, interp
 from cereal import car
 from common.conversions import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN, V_CRUISE_INITIAL
-from selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import AUTO_TR_CRUISE_GAP
 from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI, \
   V_CRUISE_MIN_CRUISE_STATE
 from selfdrive.car.hyundai.values import Buttons
@@ -363,7 +362,6 @@ class SpeedController:
 
     CC.cruiseMaxSpeed = self.real_set_speed_kph
     CC.applyMaxSpeed = self.cruise_speed_kph
-    CC.autoTrGap = AUTO_TR_CRUISE_GAP
     CC.sccBus = c.CP.sccBus
     CC.steerRatio = c.VM.sR
     CC.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
