@@ -4,6 +4,7 @@ import math
 
 from cereal import car
 from common.conversions import Conversions as CV
+from common.numpy_fast import interp
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
 from selfdrive.car.hyundai.interface import BUTTONS_DICT
@@ -67,9 +68,23 @@ class CarState(CarStateBase):
       cp.vl["WHL_SPD11"]["WHL_SPD_RL"],
       cp.vl["WHL_SPD11"]["WHL_SPD_RR"],
     )
-    ret.vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
+
+    ######
+    cluSpeed = cp.vl["CLU11"]["CF_Clu_Vanz"]
+    decimal = cp.vl["CLU11"]["CF_Clu_VanzDecimal"]
+    if 0. < decimal < 0.5:
+      cluSpeed += decimal
+
+    vEgoClu = cluSpeed * speed_conv
+    ret.vEgoCluster, _ = self.update_clu_speed_kf(vEgoClu)
+
+    vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
+    ret.vEgoRaw = interp(vEgoRaw, [0., 3.], [(vEgoRaw + vEgoClu) / 2., vEgoRaw])
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw < 0.1
+
+    ret.vCluRatio = (ret.vEgo / ret.vEgoCluster) if (ret.vEgoCluster > 3. and ret.vEgo > 3.) else 1.0
+    #####
 
     self.cluster_speed_counter += 1
     if self.cluster_speed_counter > CLUSTER_SAMPLE_RATE:
@@ -79,8 +94,6 @@ class CarState(CarStateBase):
       # mimic how dash converts to imperial
       if not self.is_metric:
         self.cluster_speed = math.floor(self.cluster_speed * CV.KPH_TO_MPH + CV.KPH_TO_MPH)
-
-    ret.vEgoCluster = self.cluster_speed * speed_conv
 
     ret.steeringAngleDeg = cp.vl["SAS11"]["SAS_Angle"]
     ret.steeringRateDeg = cp.vl["SAS11"]["SAS_Speed"]
@@ -193,15 +206,6 @@ class CarState(CarStateBase):
 
     if self.CP.hasNav:
       ret.navSpeedLimit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
-
-    cluSpeed = cp.vl["CLU11"]["CF_Clu_Vanz"]
-    decimal = cp.vl["CLU11"]["CF_Clu_VanzDecimal"]
-    if 0. < decimal < 0.5:
-      cluSpeed += decimal
-
-    ret.vEgoCluster = cluSpeed * speed_conv
-    vEgoClu, aEgoClu = self.update_clu_speed_kf(ret.vEgoCluster)
-    ret.vCluRatio = (ret.vEgo / vEgoClu) if (vEgoClu > 3. and ret.vEgo > 3.) else 1.0
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
       available = ret.cruiseState.available if self.CP.sccBus == 2 else -1
