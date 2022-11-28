@@ -180,6 +180,7 @@ class CarState(CarStateBase):
       self.lead_distance = -1
 
     ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"] or ret.brakePressed)
+    ret.aReqValue = cp_cruise.vl["SCC12"]["aReqValue"]
 
     tpms_unit = cp.vl["TPMS11"]["UNIT"] * 0.725 if int(cp.vl["TPMS11"]["UNIT"]) > 0 else 1.
     ret.tpms.fl = tpms_unit * cp.vl["TPMS11"]["PRESSURE_FL"]
@@ -189,6 +190,9 @@ class CarState(CarStateBase):
 
     if self.CP.hasAutoHold:
       ret.autoHold = cp.vl["ESP11"]["AVH_STAT"]
+
+    if self.CP.hasNav:
+      ret.navSpeedLimit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
 
     cluSpeed = cp.vl["CLU11"]["CF_Clu_Vanz"]
     decimal = cp.vl["CLU11"]["CF_Clu_VanzDecimal"]
@@ -381,6 +385,10 @@ class CarState(CarStateBase):
         ("TauGapSet", "SCC11"),
         ("ACCMode", "SCC12"),
         ("aReqValue", "SCC12"),
+        ("Navi_SCC_Curve_Status", "SCC11"),
+        ("Navi_SCC_Curve_Act", "SCC11"),
+        ("Navi_SCC_Camera_Act", "SCC11"),
+        ("Navi_SCC_Camera_Status", "SCC11"),
       ]
       checks += [
         ("SCC11", 50),
@@ -442,6 +450,10 @@ class CarState(CarStateBase):
         ("LDM_STAT", "ESP11"),
       ]
       checks += [("ESP11", 50)]
+
+    if CP.hasNav:
+      signals += [("SpeedLim_Nav_Clu", "Navi_HU")]
+      checks += [("Navi_HU", 5)]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, 0, enforce_checks=False)
 

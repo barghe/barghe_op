@@ -285,6 +285,7 @@ class CarInterface(CarInterfaceBase):
       ret.sccBus = 2 if (candidate in CAMERA_SCC_CAR or Params().get_bool('SccOnBus2')) else 0
       ret.hasAutoHold = 1151 in fingerprint[0]
       ret.hasLfaHda = 1157 in fingerprint[0]
+      ret.hasNav = 1348 in fingerprint[0]
 
       if not ret.openpilotLongitudinalControl:
         ret.radarOffCan = ret.sccBus == -1

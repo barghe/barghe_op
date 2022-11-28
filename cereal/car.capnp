@@ -223,8 +223,10 @@ struct CarState {
 
   # neokii
   vCluRatio @46 :Float32;
-  autoHold @47 :Int32;
+  autoHold @47 :Int8;
   tpms @48 :Tpms;
+  navSpeedLimit @49 :Int16;
+  aReqValue @50 :Float32;
 
   struct Tpms {
     fl @0 :Float32;
@@ -355,8 +357,7 @@ struct CarControl {
   sccBus @20 :UInt8;
 
   applyAccel @21 :Float32;
-  aReqValue @22 :Float32;
-  debugText @23 :Text;
+  debugText @22 :Text;
 
   struct Actuators {
     # range from 0.0 - 1.0
@@ -713,4 +714,5 @@ struct CarParams {
   hasScc14 @75 :Bool;
   hasEms @76 :Bool;
   hasLfaHda @77 :Bool;
+  hasNav @78 :Bool;
 }

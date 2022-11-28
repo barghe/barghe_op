@@ -313,6 +313,12 @@ class SpeedLimiter:
       return self.naviData.active
     return 0
 
+  def get_cam_active(self):
+    self.recv()
+    if self.naviData is not None:
+      return self.naviData.active and (self.naviData.camLimitSpeedLeftDist > 0 or self.naviData.sectionLeftDist > 0)
+    return False
+
   def get_cam_alert(self):
     self.recv()
     if self.naviData is not None:
