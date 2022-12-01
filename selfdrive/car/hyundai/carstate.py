@@ -175,8 +175,8 @@ class CarState(CarStateBase):
     self.brake_error = self.cruise_unavail_cnt > 100
 
     self.mdps12 = copy.copy(cp.vl["MDPS12"])
-    self.scc11 = copy.copy(cp_cruise.vl["SCC11"])
-    self.scc12 = copy.copy(cp_cruise.vl["SCC12"])
+    self.scc11 = copy.copy(cp_cruise.vl["SCC11"]) if "SCC11" in cp_cruise.vl else None
+    self.scc12 = copy.copy(cp_cruise.vl["SCC12"]) if "SCC12" in cp_cruise.vl else None
     self.scc13 = copy.copy(cp_cruise.vl["SCC13"]) if self.CP.hasScc13 else None
     self.scc14 = copy.copy(cp_cruise.vl["SCC14"]) if self.CP.hasScc14 else None
 
@@ -187,13 +187,15 @@ class CarState(CarStateBase):
 
     ret.steerFaultTemporary = self.mdps_error_cnt > 50
 
-    if "SCC11" in cp_cruise.vl and "ACC_ObjDist" in cp_cruise.vl["SCC11"]:
-      self.lead_distance = cp_cruise.vl["SCC11"]["ACC_ObjDist"]
+    ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"] or ret.brakePressed)
+
+    if self.scc11 is not None and "ACC_ObjDist" in self.scc11:
+      self.lead_distance = self.scc11["ACC_ObjDist"]
     else:
       self.lead_distance = -1
 
-    ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"] or ret.brakePressed)
-    ret.aReqValue = cp_cruise.vl["SCC12"]["aReqValue"]
+    if self.scc12 is not None and "aReqValue" in self.scc12:
+      ret.aReqValue = self.scc12["aReqValue"]
 
     tpms_unit = cp.vl["TPMS11"]["UNIT"] * 0.725 if int(cp.vl["TPMS11"]["UNIT"]) > 0 else 1.
     ret.tpms.fl = tpms_unit * cp.vl["TPMS11"]["PRESSURE_FL"]

@@ -9,7 +9,7 @@ from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai import hyundaicanfd, hyundaican, hyundaiexcan
 from selfdrive.car.hyundai.values import HyundaiFlags, Buttons, CarControllerParams, CANFD_CAR, CAR, \
   LEGACY_SAFETY_MODE_CAR, FEATURES
-from selfdrive.car.interfaces import ACCEL_MAX
+from selfdrive.car.interfaces import ACCEL_MAX, ACCEL_MIN
 from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from selfdrive.controls.neokii.speed_controller import CREEP_SPEED
@@ -200,11 +200,11 @@ class CarController:
           boost = start_boost * is_accelerating
           accel += boost
 
-        aReqValue = CS.out.aReqValue
-        if not SpeedLimiter.instance().get_active() and aReqValue < ACCEL_MAX + 1:
-          accel, stock_cam = self.get_stock_cam_accel(accel, aReqValue, CS.scc11)
-        else:
-          stock_cam = False
+        stock_cam = False
+        if self.CP.sccBus == 2:
+          aReqValue = CS.scc12["aReqValue"]
+          if not SpeedLimiter.instance().get_active() and ACCEL_MIN <= aReqValue <= ACCEL_MAX:
+            accel, stock_cam = self.get_stock_cam_accel(accel, aReqValue, CS.scc11)
 
         if self.CP.sccBus == 0:
           can_sends.extend(hyundaican.create_acc_commands(self.packer, CC.enabled, accel, jerk, int(self.frame / 2),
