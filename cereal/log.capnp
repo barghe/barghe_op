@@ -1954,6 +1954,24 @@ struct NavRoute {
   }
 }
 
+struct NavModelData {
+  frameId @0 :UInt32;
+  modelExecutionTime @1 :Float32;
+  dspExecutionTime @2 :Float32;
+  features @3 :List(Float32);
+  # predicted future position
+  position @4 :XYData;
+  desirePrediction @5 :List(Float32);
+
+  # All SI units and in device frame
+  struct XYData {
+    x @0 :List(Float32);
+    y @1 :List(Float32);
+    xStd @2 :List(Float32);
+    yStd @3 :List(Float32);
+  }
+}
+
 struct EncodeData {
   idx @0 :EncodeIndex;
   data @1 :Data;
@@ -1965,8 +1983,12 @@ struct UserFlag {
 }
 
 struct Microphone {
-  ambientNoiseLevelRaw @0 :Float32;
-  filteredAmbientNoiseLevel @1 :Float32;
+  soundPressure @0 :Float32;
+
+  # uncalibrated, A-weighted
+  soundPressureWeighted @3 :Float32;
+  soundPressureWeightedDb @1 :Float32;
+  filteredSoundPressureWeightedDb @2 :Float32;
 }
 
 struct Event {
@@ -2018,6 +2040,7 @@ struct Event {
     liveLocationKalman @72 :LiveLocationKalman;
     modelV2 @75 :ModelDataV2;
     driverStateV2 @92 :DriverStateV2;
+    navModel @104 :NavModelData;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
@@ -2051,7 +2074,7 @@ struct Event {
     uiDebug @102 :UIDebug;
     
     # neokii
-    naviData @104 :NaviData;
+    naviData @105 :NaviData;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
