@@ -130,8 +130,8 @@ class CarInterface(CarInterfaceBase):
       ret.wheelbase = 2.67
       ret.steerRatio = 14.00 * 1.15
       tire_stiffness_factor = 0.385
-    elif candidate == CAR.TUCSON_HYBRID_4TH_GEN:
-      ret.mass = 1680. + STD_CARGO_KG  # average of all 3 trims
+    elif candidate in (CAR.TUCSON_4TH_GEN, CAR.TUCSON_HYBRID_4TH_GEN):
+      ret.mass = 1630. + STD_CARGO_KG  # average
       ret.wheelbase = 2.756
       ret.steerRatio = 16.
       tire_stiffness_factor = 0.385
@@ -312,6 +312,10 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_HYBRID_GAS
     elif candidate in EV_CAR:
       ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_EV_GAS
+
+    if candidate in (CAR.KONA, CAR.KONA_EV, CAR.KONA_HEV, CAR.KONA_EV_2022):
+      ret.flags |= HyundaiFlags.ALT_LIMITS.value
+      ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_ALT_LIMITS
 
     if ret.centerToFront == 0:
       ret.centerToFront = ret.wheelbase * 0.4
