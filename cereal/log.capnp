@@ -1000,6 +1000,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   }
 }
 struct UiPlan {
+  frameId @2 :UInt32;
   position @0 :XYZTData;
   accel @1 :List(Float32);
 }
@@ -1237,6 +1238,19 @@ struct UbloxGnss {
     hwStatus @3 :HwStatus;
     hwStatus2 @4 :HwStatus2;
     glonassEphemeris @5 :GlonassEphemeris;
+    satReport @6 :SatReport;
+  }
+  
+  struct SatReport {
+    #received time of week in gps time in seconds and gps week
+    iTow @0 :UInt32;
+    svs @1 :List(SatInfo);
+
+    struct SatInfo {
+      svId @0 :UInt8;
+      gnssId @1 :UInt8;
+      flagsBitfield @2 :UInt32;
+    }
   }
 
   struct MeasurementReport {
@@ -1330,7 +1344,7 @@ struct UbloxGnss {
 
     iDot @26 :Float64;
     codesL2 @27 :Float64;
-    gpsWeek @28 :Float64;
+    gpsWeekDEPRECATED @28 :Float64;
     l2 @29 :Float64;
 
     svAcc @30 :Float64;
@@ -1348,6 +1362,8 @@ struct UbloxGnss {
     ionoBeta @39 :List(Float64);
 
     towCount @40 :UInt32;
+    toeWeek @41 :UInt16;
+    tocWeek @42 :UInt16;
   }
 
   struct IonoData {
@@ -1426,7 +1442,7 @@ struct UbloxGnss {
     age @17 :UInt8;
 
     svHealth @18 :UInt8;
-    tk @19 :UInt16;
+    tkDEPRECATED @19 :UInt16;
     tb @20 :UInt16;
 
     tauN @21 :Float64;
@@ -1438,7 +1454,12 @@ struct UbloxGnss {
     p3 @26 :UInt8;
     p4 @27 :UInt8;
 
-    freqNum @28 :UInt32;
+    freqNumDEPRECATED @28 :UInt32;
+    
+    n4 @29 :UInt8;
+    nt @30 :UInt16;
+    freqNum @31 :Int16;
+    tkSeconds @32 :UInt32;
   }
 }
 
