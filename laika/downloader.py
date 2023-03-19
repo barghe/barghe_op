@@ -43,7 +43,7 @@ def retryable(f):
       try:
         return f(url_base, *args, **kwargs)
       except DownloadFailed as e:
-        logging.exception(e)
+        logging.warning(e)
     # none of them succeeded
     raise DownloadFailed("Multiple URL failures attempting to pull file(s)")
   return wrapped
