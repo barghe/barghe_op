@@ -414,6 +414,8 @@ struct PandaState @0xa7649e2575e4591e {
   interruptLoad @25 :Float32;
   fanPower @28 :UInt8;
 
+  spiChecksumErrorCount @33 :UInt16;
+
   # can health
   canState0 @29 :PandaCanState;
   canState1 @30 :PandaCanState;
@@ -464,6 +466,7 @@ struct PandaState @0xa7649e2575e4591e {
     interruptRateSpi @23;
     interruptRateUart7 @24;
     sirenMalfunction @25;
+    heartbeatLoopWatchdog @26;
     # Update max fault type in boardd when adding faults
   }
 
