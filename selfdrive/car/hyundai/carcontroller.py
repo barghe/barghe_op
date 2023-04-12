@@ -8,7 +8,7 @@ from opendbc.can.packer import CANPacker
 from selfdrive.car import apply_driver_steer_torque_limits
 from selfdrive.car.hyundai import hyundaicanfd, hyundaican, hyundaican_community
 from selfdrive.car.hyundai.values import HyundaiFlags, Buttons, CarControllerParams, CANFD_CAR, CAR, \
-  LEGACY_SAFETY_MODE_CAR, FEATURES
+  LEGACY_SAFETY_MODE_CAR, CAN_GEARS
 from selfdrive.car.interfaces import ACCEL_MAX, ACCEL_MIN
 from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from selfdrive.controls.neokii.navi_controller import SpeedLimiter
@@ -193,7 +193,7 @@ class CarController:
               if (self.frame - self.last_button_frame) * DT_CTRL >= 0.15:
                 self.last_button_frame = self.frame
 
-      if self.CP.carFingerprint in FEATURES["send_mdps12"]:  # send mdps12 to LKAS to prevent LKAS error
+      if self.CP.carFingerprint in CAN_GEARS["send_mdps12"]:  # send mdps12 to LKAS to prevent LKAS error
         can_sends.append(hyundaican_community.create_mdps12(self.packer, self.frame, CS.mdps12))
 
       if self.frame % 2 == 0 and self.CP.openpilotLongitudinalControl:
