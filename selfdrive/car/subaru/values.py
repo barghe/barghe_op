@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, IntFlag
 from typing import Dict, List, Union
 
 from cereal import car
@@ -28,6 +28,10 @@ class CarControllerParams:
       self.STEER_MAX = 1439
     else:
       self.STEER_MAX = 2047
+
+
+class SubaruFlags(IntFlag):
+  SEND_INFOTAINMENT = 1
 
 
 class CAR:
@@ -185,6 +189,7 @@ FW_VERSIONS = {
       b'\x00\x00d\xdc\x00\x00\x00\x00',
       b'\x00\x00dd\x00\x00\x00\x00',
       b'\x00\x00c\xf4\x1f@ \x07',
+      b'\x00\x00e\x1c\x00\x00\x00\x00',
     ],
     (Ecu.engine, 0x7e0, None): [
       b'\xaa\x61\x66\x73\x07',
@@ -206,6 +211,7 @@ FW_VERSIONS = {
       b'\xaa!aw\x07',
       b'\xaa!av\x07',
       b'\xaa\x01bt\x07',
+      b'\xc5!ap\x07',
     ],
     (Ecu.transmission, 0x7e1, None): [
       b'\xe3\xe5\x46\x31\x00',
