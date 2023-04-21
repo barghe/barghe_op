@@ -106,8 +106,7 @@ class NaviServer:
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
       try:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
+        #sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         while True:
 
           try:
@@ -115,11 +114,14 @@ class NaviServer:
             if broadcast_address is None or frame % 10 == 0:
               broadcast_address = self.get_broadcast_address()
 
-            print('broadcast_address', broadcast_address)
+            if broadcast_address is not None and self.remote_addr is None:
+              print('broadcast', broadcast_address)
 
-            if broadcast_address is not None:
-              address = (broadcast_address, Port.BROADCAST_PORT)
-              sock.sendto('EON:ROAD_LIMIT_SERVICE:v1'.encode(), address)
+              for i in range(1, 255):
+                ip_tuple = socket.inet_aton(broadcast_address)
+                new_ip = ip_tuple[:-1] + bytes([i])
+                address = (socket.inet_ntoa(new_ip), Port.BROADCAST_PORT)
+                sock.sendto('EON:ROAD_LIMIT_SERVICE:v1'.encode(), address)
           except:
             pass
 
@@ -206,6 +208,7 @@ class NaviServer:
 
     if now - self.last_updated_active > 6.:
       self.active = 0
+      self.remote_addr = None
 
   def get_limit_val(self, key, default=None):
     return self.get_json_val(self.json_road_limit, key, default)
