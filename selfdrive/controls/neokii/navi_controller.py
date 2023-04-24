@@ -117,11 +117,12 @@ class NaviServer:
             if broadcast_address is not None and self.remote_addr is None:
               print('broadcast', broadcast_address)
 
+              msg = 'EON:ROAD_LIMIT_SERVICE:v1'.encode()
               for i in range(1, 255):
                 ip_tuple = socket.inet_aton(broadcast_address)
                 new_ip = ip_tuple[:-1] + bytes([i])
                 address = (socket.inet_ntoa(new_ip), Port.BROADCAST_PORT)
-                sock.sendto('EON:ROAD_LIMIT_SERVICE:v1'.encode(), address)
+                sock.sendto(msg, address)
           except:
             pass
 
