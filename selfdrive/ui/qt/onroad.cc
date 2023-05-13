@@ -655,6 +655,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   drawDeviceState(p);
   //drawTurnSignals(p);
   drawGpsStatus(p);
+  drawMisc(p);
   drawDebugText(p);
 
   const auto controls_state = sm["controlsState"].getControlsState();
@@ -1075,6 +1076,16 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
       text_rect.moveTop(b_rect.top() + 3);
       p.drawText(text_rect, Qt::AlignCenter, str);
     }
+
+    {
+      configFont(p, "Inter", 10, "Bold");
+
+      QRect text_rect = getRect(p, Qt::AlignCenter, str);
+      QRect b_rect(board_rect.x(), board_rect.y(), board_rect.width(), board_rect.height()/2);
+      text_rect.moveCenter({b_rect.center().x(), 0});
+      text_rect.moveTop(b_rect.top() + 20);
+      p.drawText(text_rect, Qt::AlignCenter, str);
+    }
   }
 
   p.restore();
@@ -1485,4 +1496,20 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.drawArc(QRectF(x - arc_l / 2, std::fmin(y + delta_y, y), arc_l, fabs(delta_y)), (scene.driver_pose_sins[0]>0 ? 0 : 180) * 16, 180 * 16);
 
   painter.restore();
+}
+
+void AnnotatedCameraWidget::drawMisc(QPainter &p) {
+  p.save();
+  UIState *s = uiState();
+  const SubMaster &sm = *(s->sm);
+
+  const auto navi_data = sm["naviData"].getNaviData();
+  QString currentRoadName = QString::fromStdString(navi_data.getCurrentRoadName().cStr());
+
+  QColor color = QColor(255, 255, 255, 230);
+
+  configFont(p, "Inter", 70, "Regular");
+  drawText(p, (width()-(bdr_s*2))/4 + bdr_s + 20, 140, currentRoadName, 200);
+
+  p.restore();
 }
