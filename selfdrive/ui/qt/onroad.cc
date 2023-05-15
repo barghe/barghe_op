@@ -127,14 +127,14 @@ void OnroadWindow::mouseReleaseEvent(QMouseEvent* e) {
           Params().remove("CalibrationParams");
           Params().remove("LiveParameters");
           QTimer::singleShot(1500, []() {
-            Hardware::soft_reboot();
+            Hardware::reboot();
           });
 
           QSound::play("../assets/sounds/reset_calibration.wav");
         }
         else { // downward
           QTimer::singleShot(500, []() {
-            Hardware::soft_reboot();
+            Hardware::reboot();
           });
         }
       }

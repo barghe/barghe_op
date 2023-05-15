@@ -191,15 +191,15 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   reset_layout->setSpacing(30);
 
   // reset calibration button
-  QPushButton *restart_openpilot_btn = new QPushButton(tr("Soft restart"));
+  /*QPushButton *restart_openpilot_btn = new QPushButton(tr("Soft restart"));
   restart_openpilot_btn->setStyleSheet("height: 120px;border-radius: 15px;background-color: #393939;");
   reset_layout->addWidget(restart_openpilot_btn);
   QObject::connect(restart_openpilot_btn, &QPushButton::released, [=]() {
     emit closeSettings();
     QTimer::singleShot(100, []() {
-      Hardware::soft_reboot();
+      Hardware::reboot();
     });
-  });
+  });*/
 
   // reset calibration button
   QPushButton *reset_calib_btn = new QPushButton(tr("Reset Calibration"));
@@ -211,7 +211,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
       Params().remove("LiveParameters");
       emit closeSettings();
       QTimer::singleShot(100, []() {
-        Hardware::soft_reboot();
+        Hardware::reboot();
       });
     }
   });
