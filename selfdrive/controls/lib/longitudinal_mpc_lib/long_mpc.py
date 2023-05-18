@@ -269,9 +269,9 @@ class LongitudinalMpc:
       #cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, a_change_cost, J_EGO_COST]
 
       v_ego = self.x0[1]
-      x_cost = interp(v_ego, [0., 15.], [0.1, X_EGO_COST])
-      v_cost = interp(v_ego, [0., 15.], [0.2, V_EGO_COST])
-      a_cost = interp(v_ego, [0., 15.], [5.0, A_EGO_COST])
+      x_cost = interp(v_ego, [1., 6.], [0.1, X_EGO_COST])
+      v_cost = interp(v_ego, [1., 6.], [0.2, V_EGO_COST])
+      a_cost = interp(v_ego, [1., 6.], [5.0, A_EGO_COST])
 
       cost_weights = [X_EGO_OBSTACLE_COST, x_cost, v_cost, a_cost, a_change_cost, J_EGO_COST]
       constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
