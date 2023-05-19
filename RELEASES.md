@@ -1,3 +1,6 @@
+Version 0.9.3 (2023-06-XX)
+========================
+
 Version 0.9.2 (2023-05-22)
 ========================
 * New driving model
@@ -16,6 +19,7 @@ Version 0.9.2 (2023-05-22)
 * Ford Escape 2020-22 support
 * Ford Explorer 2020-22 support
 * Ford Kuga 2020-22 support
+* Ford Maverick 2022-23 support
 * Genesis GV80 2023 support thanks to JWingate80!
 * Honda HR-V 2023 support thanks to AlexandreSato and galegozi!
 * Kia Niro EV 2023 support thanks to JosselinLecocq!

@@ -186,7 +186,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 void OnroadWindow::offroadTransition(bool offroad) {
 #ifdef ENABLE_MAPS
   if (!offroad) {
-    if (map == nullptr && (uiState()->prime_type || !MAPBOX_TOKEN.isEmpty())) {
+    if (map == nullptr && (uiState()->primeType() || !MAPBOX_TOKEN.isEmpty())) {
       MapWindow * m = new MapWindow(get_mapbox_settings());
       map = m;
 
@@ -610,6 +610,7 @@ void AnnotatedCameraWidget::drawIcon(QPainter &p, int x, int y, QPixmap &img, QB
   p.drawEllipse(x - radius / 2, y - radius / 2, radius, radius);
   p.setOpacity(opacity);
   p.drawPixmap(x - img_size / 2, y - img_size / 2, img_size, img_size, img);
+  p.setOpacity(1.0);
 }
 
 void AnnotatedCameraWidget::drawText2(QPainter &p, int x, int y, int flags, const QString &text, const QColor& color) {
@@ -1461,13 +1462,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   int y = rect().bottom() - footer_h / 2 - 10;
 
   float opacity = dmActive ? 0.65f : 0.15f;
-  drawIcon(painter, x, y, dm_img, blackColor(0), opacity);
-
-  // circle background
-  painter.setOpacity(1.0);
-  painter.setPen(Qt::NoPen);
-  painter.setBrush(blackColor(70));
-  painter.drawEllipse(x - btn_size / 2, y - btn_size / 2, btn_size, btn_size);
+  drawIcon(painter, x, y, dm_img, blackColor(70), opacity);
 
   // face
   QPointF face_kpts_draw[std::size(default_face_kpts_3d)];

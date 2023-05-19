@@ -44,7 +44,7 @@
 #define SAFETY_NOOUTPUT 19U
 #define SAFETY_HONDA_BOSCH 20U
 #define SAFETY_VOLKSWAGEN_PQ 21U
-#define SAFETY_SUBARU_LEGACY 22U
+#define SAFETY_SUBARU_PREGLOBAL 22U
 #define SAFETY_HYUNDAI_LEGACY 23U
 #define SAFETY_HYUNDAI_COMMUNITY 24U
 #define SAFETY_STELLANTIS 25U
@@ -509,13 +509,9 @@ bool longitudinal_speed_checks(int desired_speed, const LongitudinalLimits limit
 }
 
 bool longitudinal_gas_checks(int desired_gas, const LongitudinalLimits limits) {
-  bool violation = false;
-  if (!get_longitudinal_allowed()) {
-    violation |= desired_gas != limits.inactive_gas;
-  } else {
-    violation |= max_limit_check(desired_gas, limits.max_gas, limits.min_gas);
-  }
-  return violation;
+  bool gas_valid = get_longitudinal_allowed() && !max_limit_check(desired_gas, limits.max_gas, limits.min_gas);
+  bool gas_inactive = desired_gas == limits.inactive_gas;
+  return !(gas_valid || gas_inactive);
 }
 
 bool longitudinal_brake_checks(int desired_brake, const LongitudinalLimits limits) {
