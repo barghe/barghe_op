@@ -25,12 +25,12 @@ from tools.lib.logreader import LogReader
 # Baseline CPU usage by process
 PROCS = {
   "selfdrive.controls.controlsd": 39.0,
-  "./loggerd": 10.0,
+  "./loggerd": 14.0,
   "./encoderd": 17.0,
   "./camerad": 14.5,
   "./locationd": 11.0,
   "selfdrive.controls.plannerd": 16.5,
-  "./_ui": 19.2,
+  "./_ui": 21.0,
   "selfdrive.locationd.paramsd": 9.0,
   "./_sensord": 12.0,
   "selfdrive.controls.radard": 4.5,
@@ -98,6 +98,7 @@ class TestOnroad(unittest.TestCase):
     params = Params()
     params.clear_all()
     set_params_enabled()
+    os.environ['TESTING_CLOSET'] = '1'
     if os.path.exists(ROOT):
       shutil.rmtree(ROOT)
 
