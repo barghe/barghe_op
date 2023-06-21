@@ -1,3 +1,7 @@
+Version 0.9.4 (2023-XX-XX)
+========================
+* Ford Focus 2018 support
+
 Version 0.9.3 (2023-06-20)
 ========================
 * New driving model
