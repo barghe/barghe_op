@@ -8,10 +8,6 @@
 
 #include "selfdrive/ui/qt/offroad/networking.h"
 
-#ifdef ENABLE_MAPS
-#include "selfdrive/ui/qt/maps/map_settings.h"
-#endif
-
 #include "common/params.h"
 #include "common/watchdog.h"
 #include "common/util.h"
@@ -86,12 +82,12 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       tr("Use 24h format instead of am/pm"),
       "../assets/offroad/icon_metric.png",
     },
-    /*{
+    {
       "NavSettingLeftSide",
       tr("Show Map on Left Side of UI"),
       tr("Show map on left side when in split screen view."),
       "../assets/offroad/icon_road.png",
-    },*/
+    },
 #endif
   };
 
@@ -295,23 +291,6 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   power_layout->addWidget(reboot_btn);
   QObject::connect(reboot_btn, &QPushButton::clicked, this, &DevicePanel::reboot);
 
-  QPushButton *rebuild_btn = new QPushButton(tr("Rebuild"));
-  rebuild_btn->setObjectName("rebuild_btn");
-  power_layout->addWidget(rebuild_btn);
-  QObject::connect(rebuild_btn, &QPushButton::clicked, [=]() {
-
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to rebuild?"), tr("Rebuild"), this)) {
-      std::system("cd /data/openpilot && scons -c");
-      std::system("rm /data/openpilot/.sconsign.dblite");
-      std::system("rm /data/openpilot/prebuilt");
-      std::system("rm -rf /tmp/scons_cache");
-      if (Hardware::TICI())
-        std::system("sudo reboot");
-      else
-        std::system("reboot");
-    }
-  });
-
   QPushButton *poweroff_btn = new QPushButton(tr("Power Off"));
   poweroff_btn->setObjectName("poweroff_btn");
   power_layout->addWidget(poweroff_btn);
@@ -324,8 +303,6 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   setStyleSheet(R"(
     #reboot_btn { height: 120px; border-radius: 15px; background-color: #393939; }
     #reboot_btn:pressed { background-color: #4a4a4a; }
-    #rebuild_btn { height: 120px; border-radius: 15px; background-color: #393939; }
-    #rebuild_btn:pressed { background-color: #4a4a4a; }
     #poweroff_btn { height: 120px; border-radius: 15px; background-color: #E22C2C; }
     #poweroff_btn:pressed { background-color: #FF2424; }
   )");
@@ -445,12 +422,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Software"), new SoftwarePanel(this)},
     {tr("Community"), new CommunityPanel(this)},
   };
-
-#ifdef ENABLE_MAPS
-  auto map_panel = new MapPanel(this);
-  panels.push_back({tr("Navigation"), map_panel});
-  QObject::connect(map_panel, &MapPanel::closeSettings, this, &SettingsWindow::closeSettings);
-#endif
 
   nav_btns = new QButtonGroup(this);
   for (auto &[name, panel] : panels) {
