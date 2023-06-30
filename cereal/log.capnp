@@ -2315,4 +2315,5 @@ struct NaviData {
     sectionAdjustSpeed @10 :Bool;
     camSpeedFactor @11 :Float32;
     currentRoadName @12 :Text;
+    isNda2 @13 :Bool;
 }

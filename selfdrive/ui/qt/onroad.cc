@@ -113,7 +113,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 void OnroadWindow::offroadTransition(bool offroad) {
 #ifdef ENABLE_MAPS
   if (!offroad) {
-    if (map == nullptr && (uiState()->primeType() || !MAPBOX_TOKEN.isEmpty())) {
+    if (map == nullptr) { //&& (uiState()->primeType() || !MAPBOX_TOKEN.isEmpty())) {
       auto m = new MapPanel(get_mapbox_settings());
       map = m;
 
@@ -269,6 +269,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   ic_autohold_active = QPixmap("../assets/images/img_autohold_active.png").scaled(img_size, img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   ic_nda = QPixmap("../assets/images/img_nda.png");
   ic_hda = QPixmap("../assets/images/img_hda.png");
+  ic_nda2 = QPixmap("../assets/images/img_nda2.png");
+  ic_hda2 = QPixmap("../assets/images/img_hda2.png");
   ic_tire_pressure = QPixmap("../assets/images/img_tire_pressure.png");
   ic_turn_signal_l = QPixmap("../assets/images/turn_signal_l.png");
   ic_turn_signal_r = QPixmap("../assets/images/turn_signal_r.png");
@@ -801,6 +803,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
   int camLimitSpeedLeftDist = navi_data.getCamLimitSpeedLeftDist();
   int sectionLimitSpeed = navi_data.getSectionLimitSpeed();
   int sectionLeftDist = navi_data.getSectionLeftDist();
+  int isNda2 = navi_data.getIsNda2();
 
   int limit_speed = 0;
   int left_dist = 0;
@@ -815,13 +818,21 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
   }
 
   if(activeNDA > 0) {
-      int w = 120;
-      int h = 54;
-      int x = (width() + (bdr_s*2))/2 - w/2 - bdr_s;
-      int y = 40 - bdr_s;
-
       p.setOpacity(1.f);
-      p.drawPixmap(x, y, w, h, activeNDA == 1 ? ic_nda : ic_hda);
+      if(isNda2) {
+        int w = 155;
+        int h = 54;
+        int x = (width() + (bdr_s*2))/2 - w/2 - bdr_s;
+        int y = 40 - bdr_s;
+        p.drawPixmap(x, y, w, h, activeNDA == 1 ? ic_nda2 : ic_hda2);
+      }
+      else {
+        int w = 120;
+        int h = 54;
+        int x = (width() + (bdr_s*2))/2 - w/2 - bdr_s;
+        int y = 40 - bdr_s;
+        p.drawPixmap(x, y, w, h, activeNDA == 1 ? ic_nda : ic_hda);
+      }
   }
   else {
     limit_speed = car_state.getNavSpeedLimit();
@@ -1423,6 +1434,8 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
 }
 
 void AnnotatedCameraWidget::drawMisc(QPainter &p) {
+  if(width() < 1080) return;
+
   p.save();
   UIState *s = uiState();
   const SubMaster &sm = *(s->sm);

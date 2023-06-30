@@ -257,6 +257,7 @@ def main():
         dat.naviData.sectionAdjustSpeed = server.get_limit_val("section_adjust_speed", False)
         dat.naviData.camSpeedFactor = server.get_limit_val("cam_speed_factor", CAMERA_SPEED_FACTOR)
         dat.naviData.currentRoadName = server.get_limit_val("current_road_name", "")
+        dat.naviData.isNda2 = server.get_limit_val("is_nda2", False)
 
         naviData.send(dat.to_bytes())
         server.send_sdp(sock)

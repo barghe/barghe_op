@@ -552,6 +552,12 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/offroad/icon_openpilot.png",
     },
     {
+      "UseExternalNaviRoutes",
+      tr("Use external navi routes"),
+      "",
+      "../assets/offroad/icon_openpilot.png",
+    },
+    {
       "ShowDebugMessage",
       tr("Show Debug Message"),
       "",

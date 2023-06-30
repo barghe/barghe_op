@@ -99,6 +99,8 @@ protected:
   QPixmap ic_autohold_active;
   QPixmap ic_nda;
   QPixmap ic_hda;
+  QPixmap ic_nda2;
+  QPixmap ic_hda2;
   QPixmap ic_tire_pressure;
   QPixmap ic_turn_signal_l;
   QPixmap ic_turn_signal_r;
