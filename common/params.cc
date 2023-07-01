@@ -204,8 +204,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Version", PERSISTENT},
     {"VisionRadarToggle", PERSISTENT},
 
-    {"MapboxToken", PERSISTENT},
-
     // Community
     {"SupportedCars", PERSISTENT},
     {"SelectedCar", PERSISTENT},
