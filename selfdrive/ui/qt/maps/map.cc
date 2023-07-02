@@ -173,6 +173,7 @@ void MapWindow::updateState(const UIState &s) {
 
   if (locationd_valid) {
     map_instructions->noError();
+    map_instructions->hideIfNoError();
 
     // Update current location marker
     auto point = coordinate_to_collection(*last_position);
