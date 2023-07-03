@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import socketserver
 import struct
 import threading
@@ -9,7 +10,7 @@ from common.realtime import Ratekeeper
 from selfdrive.navd.helpers import Coordinate
 from common.params import Params
 
-ROUTE_RECEIVE_PORT = 2844
+ROUTE_RECEIVE_PORT = 2845
 
 class NaviRoute():
   def __init__(self):
@@ -46,9 +47,38 @@ class NaviRoute():
     self.last_routes = routes
     self.send_route()
 
+  def dispatch_instruction(self, json):
+    msg = messaging.new_message('navInstruction')
+    instruction = msg.navInstruction
+
+    if 'maneuverDistance' in json:
+      instruction.maneuverDistance = float(json['maneuverDistance'])
+    if 'distanceRemaining' in json:
+      instruction.distanceRemaining = float(json['distanceRemaining'])
+    if 'timeRemaining' in json:
+      instruction.timeRemaining = float(json['timeRemaining'])
+    if 'timeRemainingTypical' in json:
+      instruction.timeRemainingTypical = float(json['timeRemainingTypical'])
+    if 'speedLimit' in json:
+      instruction.speedLimit = float(json['speedLimit'])
+
+    if 'maneuverPrimaryText' in json:
+      instruction.maneuverPrimaryText = str(json['maneuverPrimaryText'])
+    if 'maneuverSecondaryText' in json:
+      instruction.maneuverSecondaryText = str(json['maneuverSecondaryText'])
+    if 'maneuverType' in json:
+      instruction.maneuverType = str(json['maneuverType'])
+    if 'maneuverModifier' in json:
+      instruction.maneuverModifier = str(json['maneuverModifier'])
+
+    self.pm.send('navInstruction', msg)
+
+
+
   class RouteTCPServer(socketserver.TCPServer):
     def __init__(self, server_address, RequestHandlerClass, navi_route):
       self.navi_route = navi_route
+      socketserver.TCPServer.allow_reuse_address = True
       super().__init__(server_address, RequestHandlerClass)
 
   class RouteTCPHandler(socketserver.BaseRequestHandler):
@@ -68,23 +98,30 @@ class NaviRoute():
       if len(length_bytes) == 4:
         try:
           length = struct.unpack(">I", length_bytes)[0]
-          if length > 0:
+          if length >= 4:
+            type_bytes = self.recv(4)
+            type = struct.unpack(">I", type_bytes)[0]
+            data = self.recv(length-4)
 
-            data = self.recv(length)
+            if type == 0: # route
+              routes = []
+              count = int(len(data) / 8)
 
-            routes = []
-            count = int(len(data) / 8)
-            for i in range(count):
-              lat = struct.unpack(">f", data[i * 8:i * 8 + 4])[0]
-              lon = struct.unpack(">f", data[i * 8 + 4:i * 8 + 8])[0]
+              if count > 0:
+                for i in range(count):
+                  lat = struct.unpack(">f", data[i * 8:i * 8 + 4])[0]
+                  lon = struct.unpack(">f", data[i * 8 + 4:i * 8 + 8])[0]
 
-              coord = Coordinate.from_mapbox_tuple((lon, lat))
-              routes.append(coord)
+                  coord = Coordinate.from_mapbox_tuple((lon, lat))
+                  routes.append(coord)
 
-            coords = [c.as_dict() for c in routes]
-            self.server.navi_route.dispatch_route(coords)
-          else:
-            self.server.navi_route.dispatch_route(None)
+                coords = [c.as_dict() for c in routes]
+                self.server.navi_route.dispatch_route(coords)
+              else:
+                self.server.navi_route.dispatch_route(None)
+
+            elif type == 1: # instruction
+              self.server.navi_route.dispatch_instruction(json.loads(data.decode('utf-8')))
 
         except Exception as e:
           print(e)
