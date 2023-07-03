@@ -22,13 +22,18 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   stacked_layout->setStackingMode(QStackedLayout::StackAll);
   main_layout->addLayout(stacked_layout);
 
+  QWidget * stacked_nvg_wrapper = new QWidget;
+  QStackedLayout *stacked_nvg = new QStackedLayout(stacked_nvg_wrapper);
+  stacked_nvg->setStackingMode(QStackedLayout::StackAll);
+
   nvg = new AnnotatedCameraWidget(VISION_STREAM_ROAD, this);
+  stacked_nvg->addWidget(nvg);
 
   QWidget * split_wrapper = new QWidget;
   split = new QHBoxLayout(split_wrapper);
   split->setContentsMargins(0, 0, 0, 0);
   split->setSpacing(0);
-  split->addWidget(nvg);
+  split->addWidget(stacked_nvg_wrapper);
 
   if (getenv("DUAL_CAMERA_VIEW")) {
     CameraWidget *arCam = new CameraWidget("camerad", VISION_STREAM_ROAD, true, this);
@@ -70,7 +75,7 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   recorder_layout->addWidget(recorder);
   recorder_layout->setAlignment(recorder, Qt::AlignRight | Qt::AlignBottom);
 
-  stacked_layout->addWidget(recorder_widget);
+  stacked_nvg->addWidget(recorder_widget);
   recorder_widget->raise();
   alerts->raise();
 
