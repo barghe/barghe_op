@@ -18,6 +18,7 @@ class NaviRoute():
     self.pm = messaging.PubMaster(['navInstruction', 'navRoute'])
     self.last_routes = None
     self.ui_pid = None
+    self.last_client_address = None
 
     route_thread = Thread(target=self.route_thread, args=[])
     route_thread.daemon = True
@@ -41,6 +42,9 @@ class NaviRoute():
     msg = messaging.new_message('navRoute')
     if self.last_routes is not None:
       msg.navRoute.coordinates = self.last_routes
+    else:
+      self.dispatch_instruction(None)
+
     self.pm.send('navRoute', msg)
 
   def dispatch_route(self, routes):
@@ -51,25 +55,25 @@ class NaviRoute():
     msg = messaging.new_message('navInstruction')
     instruction = msg.navInstruction
 
-    if 'maneuverDistance' in json:
-      instruction.maneuverDistance = float(json['maneuverDistance'])
-    if 'distanceRemaining' in json:
-      instruction.distanceRemaining = float(json['distanceRemaining'])
-    if 'timeRemaining' in json:
-      instruction.timeRemaining = float(json['timeRemaining'])
-    if 'timeRemainingTypical' in json:
-      instruction.timeRemainingTypical = float(json['timeRemainingTypical'])
-    if 'speedLimit' in json:
-      instruction.speedLimit = float(json['speedLimit'])
+    if json is not None:
+      if 'maneuverDistance' in json:
+        instruction.maneuverDistance = float(json['maneuverDistance'])
+      if 'distanceRemaining' in json:
+        instruction.distanceRemaining = float(json['distanceRemaining'])
+      if 'timeRemaining' in json:
+        instruction.timeRemaining = float(json['timeRemaining'])
+      if 'timeRemainingTypical' in json:
+        instruction.timeRemainingTypical = float(json['timeRemainingTypical'])
+      if 'speedLimit' in json:
+        instruction.speedLimit = float(json['speedLimit'])
 
-    if 'maneuverPrimaryText' in json:
-      instruction.maneuverPrimaryText = str(json['maneuverPrimaryText'])
-    if 'maneuverSecondaryText' in json:
-      instruction.maneuverSecondaryText = str(json['maneuverSecondaryText'])
-    if 'maneuverType' in json:
-      instruction.maneuverType = str(json['maneuverType'])
-    if 'maneuverModifier' in json:
-      instruction.maneuverModifier = str(json['maneuverModifier'])
+      if 'maneuverPrimaryText' in json:
+        instruction.maneuverPrimaryText = str(json['maneuverPrimaryText'])
+      if 'maneuverSecondaryText' in json:
+        instruction.maneuverSecondaryText = str(json['maneuverSecondaryText'])
+      if 'type' in json:
+        if self.last_client_address is not None:
+          instruction.imageUrl = 'http://' + self.last_client_address + ':2859/image?no=' + str(json['type'])
 
     self.pm.send('navInstruction', msg)
 
@@ -99,6 +103,8 @@ class NaviRoute():
         try:
           length = struct.unpack(">I", length_bytes)[0]
           if length >= 4:
+            self.server.navi_route.last_client_address = self.client_address[0]
+
             type_bytes = self.recv(4)
             type = struct.unpack(">I", type_bytes)[0]
             data = self.recv(length-4)

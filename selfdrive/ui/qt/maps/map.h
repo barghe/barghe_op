@@ -22,6 +22,7 @@
 #include "common/params.h"
 #include "common/util.h"
 #include "selfdrive/ui/ui.h"
+#include "selfdrive/ui/qt/widgets/controls.h"
 
 class MapInstructions : public QWidget {
   Q_OBJECT
@@ -30,7 +31,8 @@ private:
   QLabel *distance;
   QLabel *primary;
   QLabel *secondary;
-  QLabel *icon_01;
+  //QLabel *icon_01;
+  NetworkImageWidget *icon_01;
   QWidget *lane_widget;
   QHBoxLayout *lane_layout;
   bool error = false;

@@ -387,7 +387,7 @@ MapInstructions::MapInstructions(QWidget * parent) : QWidget(parent) {
   main_layout->setContentsMargins(11, 50, 11, 11);
   {
     QVBoxLayout *layout = new QVBoxLayout;
-    icon_01 = new QLabel;
+    icon_01 = new NetworkImageWidget;
     layout->addWidget(icon_01);
     layout->addStretch();
     main_layout->addLayout(layout);
@@ -441,7 +441,7 @@ void MapInstructions::updateDistance(float d) {
       distance_str.setNum(d / 1000, 'f', 1);
       distance_str += tr(" km");
     } else {
-      distance_str.setNum(50 * int(d / 50));
+      distance_str.setNum(d);
       distance_str += tr(" m");
     }
   } else {
@@ -494,7 +494,7 @@ void MapInstructions::updateInstructions(cereal::NavInstruction::Reader instruct
   secondary->setText(secondary_str);
 
   // Show arrow with direction
-  QString type = QString::fromStdString(instruction.getManeuverType());
+  /*QString type = QString::fromStdString(instruction.getManeuverType());
   QString modifier = QString::fromStdString(instruction.getManeuverModifier());
   if (!type.isEmpty()) {
     QString fn = "../assets/navigation/direction_" + type;
@@ -517,10 +517,12 @@ void MapInstructions::updateInstructions(cereal::NavInstruction::Reader instruct
     if (is_rhd) {
       pix = pix.transformed(QTransform().scale(-1, 1));
     }
-    icon_01->setPixmap(pix.scaledToWidth(200, Qt::SmoothTransformation));
-    icon_01->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    icon_01->setPixmap(pix.scaledToWidth(200, Qt::SmoothTransformation));*/
+    QString imageUrl = QString::fromStdString(instruction.getImageUrl());
+    icon_01->requestImage(imageUrl);
+    //icon_01->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     icon_01->setVisible(true);
-  }
+  //}
 
   // Show lanes
   bool has_lanes = false;
