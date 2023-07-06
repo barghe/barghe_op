@@ -17,7 +17,7 @@
 
 OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   QVBoxLayout *main_layout  = new QVBoxLayout(this);
-  main_layout->setMargin(bdr_s);
+  main_layout->setMargin(UI_BORDER_SIZE);
   QStackedLayout *stacked_layout = new QStackedLayout;
   stacked_layout->setStackingMode(QStackedLayout::StackAll);
   main_layout->addLayout(stacked_layout);
@@ -98,9 +98,9 @@ void OnroadWindow::updateState(const UIState &s) {
   bool navDisabledNow = (*s.sm)["controlsState"].getControlsState().getEnabled() &&
                         !(*s.sm)["modelV2"].getModelV2().getNavEnabled();
   if (navDisabled != navDisabledNow) {
-    split->setSpacing(navDisabledNow ? bdr_s * 2 : 0);
+    split->setSpacing(navDisabledNow ? UI_BORDER_SIZE * 2 : 0);
     if (map) {
-      map->setFixedWidth(topWidget(this)->width() / 2 - bdr_s * (navDisabledNow ? 2 : 1));
+      map->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE * (navDisabledNow ? 2 : 1));
     }
   }
 
@@ -136,7 +136,7 @@ void OnroadWindow::offroadTransition(bool offroad) {
 
       QObject::connect(m, &MapPanel::mapWindowShown, this, &OnroadWindow::mapWindowShown);
 
-      m->setFixedWidth(topWidget(this)->width() / 2 - bdr_s);
+      m->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
       split->insertWidget(0, m);
 
       // hidden by default, made visible when navRoute is published
@@ -278,7 +278,7 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"uiDebug"});
 
   QVBoxLayout *main_layout  = new QVBoxLayout(this);
-  main_layout->setMargin(bdr_s);
+  main_layout->setMargin(UI_BORDER_SIZE);
   main_layout->setSpacing(0);
 
   //experimental_btn = new ExperimentalButton(this);
@@ -580,10 +580,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   p.setOpacity(1.);
 
   // Header gradient
-  QLinearGradient bg(0, header_h - (header_h / 2.5), 0, header_h);
+  QLinearGradient bg(0, UI_HEADER_HEIGHT - (UI_HEADER_HEIGHT / 2.5), 0, UI_HEADER_HEIGHT);
   bg.setColorAt(0, QColor::fromRgbF(0, 0, 0, 0.45));
   bg.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));
-  p.fillRect(0, 0, width(), header_h, bg);
+  p.fillRect(0, 0, width(), UI_HEADER_HEIGHT, bg);
 
   UIState *s = uiState();
 
@@ -703,8 +703,8 @@ void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
     drawText2(p, center_x+marginX, center_y+marginY, Qt::AlignLeft, get_tpms_text(rr), get_tpms_color(rr));
   }
 
-  int x = radius / 2 + (bdr_s * 2) + (radius + 50) * 2;
-  const int y = rect().bottom() - footer_h / 2 - 10;
+  int x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * 2;
+  const int y = rect().bottom() - UI_FOOTER_HEIGHT / 2 - 10;
 
   // cruise gap
   int gap = car_state.getCruiseState().getGapAdjust();
@@ -738,7 +738,7 @@ void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
   drawTextWithColor(p, x, y+50, str, textColor);
 
   // brake
-  x = radius / 2 + (bdr_s * 2) + (radius + 50) * 3;
+  x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * 3;
   bool brake_valid = car_state.getBrakeLights();
   float img_alpha = brake_valid ? 1.0f : 0.15f;
   float bg_alpha = brake_valid ? 0.3f : 0.1f;
@@ -747,7 +747,7 @@ void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
   // auto hold
   int autohold = car_state.getAutoHold();
   if(autohold >= 0) {
-    x = radius / 2 + (bdr_s * 2) + (radius + 50) * 4;
+    x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * 4;
     img_alpha = autohold > 0 ? 1.0f : 0.15f;
     bg_alpha = autohold > 0 ? 0.3f : 0.1f;
     drawIcon(p, x, y, autohold > 1 ? ic_autohold_warning : ic_autohold_active,
@@ -843,15 +843,15 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
       if(isNda2) {
         int w = 155;
         int h = 54;
-        int x = (width() + (bdr_s*2))/2 - w/2 - bdr_s;
-        int y = 40 - bdr_s;
+        int x = (width() + (UI_BORDER_SIZE*2))/2 - w/2 - UI_BORDER_SIZE;
+        int y = 40 - UI_BORDER_SIZE;
         p.drawPixmap(x, y, w, h, activeNDA == 1 ? ic_nda2 : ic_hda2);
       }
       else {
         int w = 120;
         int h = 54;
-        int x = (width() + (bdr_s*2))/2 - w/2 - bdr_s;
-        int y = 40 - bdr_s;
+        int x = (width() + (UI_BORDER_SIZE*2))/2 - w/2 - UI_BORDER_SIZE;
+        int y = 40 - UI_BORDER_SIZE;
         p.drawPixmap(x, y, w, h, activeNDA == 1 ? ic_nda : ic_hda);
       }
   }
@@ -1419,8 +1419,8 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.save();
 
   // base icon
-  int x = radius / 2 + (bdr_s * 2) + (radius + 50);
-  int y = rect().bottom() - footer_h / 2 - 10;
+  int x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50);
+  int y = rect().bottom() - UI_FOOTER_HEIGHT / 2 - 10;
 
   float opacity = dmActive ? 0.65f : 0.15f;
   drawIcon(painter, x, y, dm_img, blackColor(70), opacity);
@@ -1467,7 +1467,7 @@ void AnnotatedCameraWidget::drawMisc(QPainter &p) {
   QColor color = QColor(255, 255, 255, 230);
 
   configFont(p, "Inter", 70, "Regular");
-  drawText(p, (width()-(bdr_s*2))/4 + bdr_s + 20, 140, currentRoadName, 200);
+  drawText(p, (width()-(UI_BORDER_SIZE*2))/4 + UI_BORDER_SIZE + 20, 140, currentRoadName, 200);
 
   p.restore();
 }
