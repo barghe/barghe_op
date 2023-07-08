@@ -70,7 +70,7 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
 
   QWidget* recorder_widget = new QWidget(this);
   QVBoxLayout * recorder_layout = new QVBoxLayout (recorder_widget);
-  recorder_layout->setMargin(35);
+  recorder_layout->setMargin(25);
   recorder = new ScreenRecoder(this);
   recorder_layout->addWidget(recorder);
   recorder_layout->setAlignment(recorder, Qt::AlignRight | Qt::AlignBottom);
@@ -281,8 +281,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   main_layout->setMargin(UI_BORDER_SIZE);
   main_layout->setSpacing(0);
 
-  //experimental_btn = new ExperimentalButton(this);
-  //main_layout->addWidget(experimental_btn, 0, Qt::AlignTop | Qt::AlignRight);
+  experimental_btn = new ExperimentalButton(this);
+  main_layout->addWidget(experimental_btn, 0, Qt::AlignTop | Qt::AlignRight);
 
   dm_img = loadPixmap("../assets/img_driver_face.png", {img_size + 5, img_size + 5});
 
@@ -314,7 +314,7 @@ void AnnotatedCameraWidget::initializeGL() {
 void AnnotatedCameraWidget::updateState(const UIState &s) {
   const SubMaster &sm = *(s.sm);
 
-  //experimental_btn->updateState(s);
+  experimental_btn->updateState(s);
 
   const auto cs = sm["controlsState"].getControlsState();
 
@@ -1141,7 +1141,7 @@ void AnnotatedCameraWidget::drawDeviceState(QPainter &p) {
   }*/
 
   int w = 192;
-  int x = width() - (30 + w);
+  int x = width() - (30 + w) + 8;
   int y = 340;
 
   QString str;
@@ -1282,10 +1282,10 @@ void AnnotatedCameraWidget::drawGpsStatus(QPainter &p) {
   if(accuracy < 0.01f || accuracy > 20.f)
     return;
 
-  int w = 120;
-  int h = 100;
-  int x = width() - w - 30;
-  int y = 30;
+  int w = 90;
+  int h = 75;
+  int x = width() - w - 75 + 8;
+  int y = 240;
 
   p.save();
 
