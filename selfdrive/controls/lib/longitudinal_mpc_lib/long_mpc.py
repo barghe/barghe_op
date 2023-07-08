@@ -63,7 +63,7 @@ T_DIFFS = np.diff(T_IDXS, prepend=[0.])
 MIN_ACCEL = -3.5
 MAX_ACCEL = 2.0
 COMFORT_BRAKE = 2.5
-STOP_DISTANCE = 5.0
+STOP_DISTANCE = 6.0
 
 def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
   if personality==log.LongitudinalPersonality.relaxed:
@@ -389,6 +389,9 @@ class LongitudinalMpc:
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
       self.params[:,5] = LEAD_DANGER_FACTOR
+      if self.status:
+        d_rel = radarstate.leadOne.dRel if radarstate.leadOne.status else radarstate.leadTwo.dRel
+        self.params[:, 5] = interp(d_rel, [STOP_DISTANCE, 20], [1.0, 0.7])
 
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
@@ -427,10 +430,6 @@ class LongitudinalMpc:
 
     else:
       raise NotImplementedError(f'Planner mode {self.mode} not recognized in planner update')
-
-    if self.status:
-      d_rel = radarstate.leadOne.dRel if radarstate.leadOne.status else radarstate.leadTwo.dRel
-      self.params[:,5] = interp(d_rel, [STOP_DISTANCE, 20], [1.0, 0.7])
 
     self.yref[:,1] = x
     self.yref[:,2] = v
