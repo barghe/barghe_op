@@ -22,18 +22,13 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   stacked_layout->setStackingMode(QStackedLayout::StackAll);
   main_layout->addLayout(stacked_layout);
 
-  QWidget * stacked_nvg_wrapper = new QWidget;
-  QStackedLayout *stacked_nvg = new QStackedLayout(stacked_nvg_wrapper);
-  stacked_nvg->setStackingMode(QStackedLayout::StackAll);
-
   nvg = new AnnotatedCameraWidget(VISION_STREAM_ROAD, this);
-  stacked_nvg->addWidget(nvg);
 
   QWidget * split_wrapper = new QWidget;
   split = new QHBoxLayout(split_wrapper);
   split->setContentsMargins(0, 0, 0, 0);
   split->setSpacing(0);
-  split->addWidget(stacked_nvg_wrapper);
+  split->addWidget(nvg);
 
   if (getenv("DUAL_CAMERA_VIEW")) {
     CameraWidget *arCam = new CameraWidget("camerad", VISION_STREAM_ROAD, true, this);
@@ -57,28 +52,6 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   setAttribute(Qt::WA_OpaquePaintEvent);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &OnroadWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
-
-  // screen recoder - neokii
-
-  record_timer = std::make_shared<QTimer>();
-	QObject::connect(record_timer.get(), &QTimer::timeout, [=]() {
-    if(recorder) {
-      recorder->update_screen();
-    }
-  });
-	record_timer->start(1000/UI_FREQ);
-
-  QWidget* recorder_widget = new QWidget(this);
-  QVBoxLayout * recorder_layout = new QVBoxLayout (recorder_widget);
-  recorder_layout->setMargin(25);
-  recorder = new ScreenRecoder(this);
-  recorder_layout->addWidget(recorder);
-  recorder_layout->setAlignment(recorder, Qt::AlignRight | Qt::AlignBottom);
-
-  stacked_nvg->addWidget(recorder_widget);
-  recorder_widget->raise();
-  alerts->raise();
-
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -146,10 +119,6 @@ void OnroadWindow::offroadTransition(bool offroad) {
 #endif
 
   alerts->updateAlert({});
-
-  if(offroad && recorder) {
-    recorder->stop(false);
-  }
 }
 
 void OnroadWindow::paintEvent(QPaintEvent *event) {
@@ -215,18 +184,18 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::ControlsState::AlertSize::SMALL) {
-    configFont(p, "Inter", 74, "SemiBold");
+    p.setFont(InterFont(74, QFont::DemiBold));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::ControlsState::AlertSize::MID) {
-    configFont(p, "Inter", 88, "Bold");
+    p.setFont(InterFont(88, QFont::Bold));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
-    configFont(p, "Inter", 66, "Regular");
+    p.setFont(InterFont(66, QFont::Normal));
     p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
   } else if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     bool l = alert.text1.length() > 15;
-    configFont(p, "Inter", l ? 132 : 177, "Bold");
+    p.setFont(InterFont(l ? 132 : 177, QFont::Bold));
     p.drawText(QRect(0, r.y() + (l ? 240 : 270), width(), 600), Qt::AlignHCenter | Qt::TextWordWrap, alert.text1);
-    configFont(p, "Inter", 88, "Regular");
+    p.setFont(InterFont(88, QFont::Normal));
     p.drawText(QRect(0, r.height() - (l ? 361 : 420), width(), 300), Qt::AlignHCenter | Qt::TextWordWrap, alert.text2);
   }
 }
@@ -298,6 +267,19 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   ic_turn_signal_l = QPixmap("../assets/images/turn_signal_l.png");
   ic_turn_signal_r = QPixmap("../assets/images/turn_signal_r.png");
   ic_satellite = QPixmap("../assets/images/satellite.png");
+
+  // screen recoder - neokii
+
+  record_timer = std::make_shared<QTimer>();
+	QObject::connect(record_timer.get(), &QTimer::timeout, [=]() {
+    if(recorder) {
+      recorder->update_screen();
+    }
+  });
+	record_timer->start(1000/UI_FREQ);
+
+	recorder = new ScreenRecoder(this);
+	main_layout->addWidget(recorder, 0, Qt::AlignBottom | Qt::AlignRight);
 }
 
 void AnnotatedCameraWidget::initializeGL() {
@@ -640,7 +622,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   // info
 
   p.save();
-  configFont(p, "Inter", 34, "Regular");
+  p.setFont(InterFont(34, QFont::Normal));
   p.setPen(QColor(0xff, 0xff, 0xff, 200));
   p.drawText(rect().left() + 20, rect().height() - 15, infoText);
   p.restore();
@@ -687,8 +669,7 @@ void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
     p.setOpacity(0.8);
     p.drawPixmap(x, y, w, h, ic_tire_pressure);
 
-    configFont(p, "Inter", 38, "Bold");
-
+    p.setFont(InterFont(38, QFont::Bold));
     QFontMetrics fm(p.font());
     QRect rcFont = fm.boundingRect("9");
 
@@ -731,10 +712,10 @@ void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
     textSize = 70.f;
   }
 
-  configFont(p, "Inter", 35, "Bold");
+  p.setFont(InterFont(35, QFont::Bold));
   drawText(p, x, y-20, "GAP", 200);
 
-  configFont(p, "Inter", textSize, "Bold");
+  p.setFont(InterFont(textSize, QFont::Bold));
   drawTextWithColor(p, x, y+50, str, textColor);
 
   // brake
@@ -782,10 +763,10 @@ void AnnotatedCameraWidget::drawSpeed(QPainter &p) {
 
   QString speed;
   speed.sprintf("%.0f", cur_speed);
-  configFont(p, "Inter", 176, "Bold");
+  p.setFont(InterFont(176, QFont::Bold));
   drawTextWithColor(p, rect().center().x(), 230, speed, color);
 
-  configFont(p, "Inter", 66, "Regular");
+  p.setFont(InterFont(66, QFont::Normal));
   drawText(p, rect().center().x(), 310, s->scene.is_metric ? "km/h" : "mph", 200);
 
   p.restore();
@@ -904,7 +885,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
     p.setPen(QColor(255, 255, 255, 230));
 
     if(is_cruise_set) {
-      configFont(p, "Inter", 80, "Bold");
+      p.setFont(InterFont(80, QFont::Bold));
 
       if(is_metric)
         str.sprintf( "%d", (int)(cruiseMaxSpeed + 0.5));
@@ -912,7 +893,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
         str.sprintf( "%d", (int)(cruiseMaxSpeed*KM_TO_MILE + 0.5));
     }
     else {
-      configFont(p, "Inter", 60, "Bold");
+      p.setFont(InterFont(60, QFont::Bold));
       str = "N/A";
     }
 
@@ -928,7 +909,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
   {
     p.setPen(QColor(255, 255, 255, 180));
 
-    configFont(p, "Inter", 50, "Bold");
+    p.setFont(InterFont(50, QFont::Bold));
     if(is_cruise_set && applyMaxSpeed > 0) {
       if(is_metric)
         str.sprintf( "%d", (int)(applyMaxSpeed + 0.5));
@@ -963,7 +944,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
     p.setPen(QPen(Qt::black, padding));
 
     str.sprintf("%d", limit_speed);
-    configFont(p, "Inter", 70, "Bold");
+    p.setFont(InterFont(70, QFont::Bold));
 
     QRect text_rect = getRect(p, Qt::AlignCenter, str);
     QRect b_rect = board_rect;
@@ -998,7 +979,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
       p.setBrush(bgColor);
       p.drawRoundedRect(rcLeftDist, 20, 20);
 
-      configFont(p, "Inter", 55, "Bold");
+      p.setFont(InterFont(55, QFont::Bold));
       p.setBrush(Qt::NoBrush);
       p.setPen(QColor(255, 255, 255, 230));
       p.drawText(rcLeftDist, Qt::AlignCenter|Qt::AlignVCenter, strLeftDist);
@@ -1019,7 +1000,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
 
     {
       str = "SPEED\nLIMIT";
-      configFont(p, "Inter", 35, "Bold");
+      p.setFont(InterFont(35, QFont::Bold));
 
       QRect text_rect = getRect(p, Qt::AlignCenter, str);
       QRect b_rect(board_rect.x(), board_rect.y(), board_rect.width(), board_rect.height()/2);
@@ -1030,7 +1011,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
 
     {
       str.sprintf("%d", roadLimitSpeed);
-      configFont(p, "Inter", 75, "Bold");
+      p.setFont(InterFont(75, QFont::Bold));
 
       QRect text_rect = getRect(p, Qt::AlignCenter, str);
       QRect b_rect(board_rect.x(), board_rect.y()+board_rect.height()/2, board_rect.width(), board_rect.height()/2);
@@ -1040,7 +1021,7 @@ void AnnotatedCameraWidget::drawMaxSpeed(QPainter &p) {
     }
 
     {
-      configFont(p, "Inter", 10, "Bold");
+      p.setFont(InterFont(10, QFont::Bold));
 
       QRect text_rect = getRect(p, Qt::AlignCenter, str);
       QRect b_rect(board_rect.x(), board_rect.y(), board_rect.width(), board_rect.height()/2);
@@ -1066,7 +1047,7 @@ void AnnotatedCameraWidget::drawSteer(QPainter &p) {
   float steer_angle = car_state.getSteeringAngleDeg();
   float desire_angle = car_control.getActuators().getSteeringAngleDeg();
 
-  configFont(p, "Inter", 50, "Bold");
+  p.setFont(InterFont(50, QFont::Bold));
 
   QString str;
   int width = 192;
@@ -1147,7 +1128,7 @@ void AnnotatedCameraWidget::drawDeviceState(QPainter &p) {
   QString str;
   QRect rect;
 
-  configFont(p, "Inter", 50, "Bold");
+  p.setFont(InterFont(50, QFont::Bold));
   str.sprintf("%.0f%%", freeSpacePercent);
   rect = QRect(x, y, w, w);
 
@@ -1157,13 +1138,13 @@ void AnnotatedCameraWidget::drawDeviceState(QPainter &p) {
   p.drawText(rect, Qt::AlignCenter, str);
 
   y += 55;
-  configFont(p, "Inter", 25, "Bold");
+  p.setFont(InterFont(25, QFont::Bold));
   rect = QRect(x, y, w, w);
   p.setPen(QColor(255, 255, 255, 200));
   p.drawText(rect, Qt::AlignCenter, "STORAGE");
 
   y += 80;
-  configFont(p, "Inter", 50, "Bold");
+  p.setFont(InterFont(50, QFont::Bold));
   str.sprintf("%.0f°C", cpuTemp);
   rect = QRect(x, y, w, w);
   r = interp<float>(cpuTemp, {50.f, 90.f}, {200.f, 255.f}, false);
@@ -1172,13 +1153,13 @@ void AnnotatedCameraWidget::drawDeviceState(QPainter &p) {
   p.drawText(rect, Qt::AlignCenter, str);
 
   y += 55;
-  configFont(p, "Inter", 25, "Bold");
+  p.setFont(InterFont(25, QFont::Bold));
   rect = QRect(x, y, w, w);
   p.setPen(QColor(255, 255, 255, 200));
   p.drawText(rect, Qt::AlignCenter, "CPU");
 
   y += 80;
-  configFont(p, "Inter", 50, "Bold");
+  p.setFont(InterFont(50, QFont::Bold));
   str.sprintf("%.0f°C", ambientTemp);
   rect = QRect(x, y, w, w);
   r = interp<float>(ambientTemp, {35.f, 60.f}, {200.f, 255.f}, false);
@@ -1187,7 +1168,7 @@ void AnnotatedCameraWidget::drawDeviceState(QPainter &p) {
   p.drawText(rect, Qt::AlignCenter, str);
 
   y += 55;
-  configFont(p, "Inter", 25, "Bold");
+  p.setFont(InterFont(25, QFont::Bold));
   rect = QRect(x, y, w, w);
   p.setPen(QColor(255, 255, 255, 200));
   p.drawText(rect, Qt::AlignCenter, "AMBIENT");
@@ -1292,7 +1273,7 @@ void AnnotatedCameraWidget::drawGpsStatus(QPainter &p) {
   p.setOpacity(0.8);
   p.drawPixmap(x, y, w, h, ic_satellite);
 
-  configFont(p, "Inter", 40, "Bold");
+  p.setFont(InterFont(40, QFont::Bold));
   p.setPen(QColor(255, 255, 255, 200));
   p.setRenderHint(QPainter::TextAntialiasing);
 
@@ -1318,7 +1299,7 @@ void AnnotatedCameraWidget::drawDebugText(QPainter &p) {
   const int text_x = width()/2 + 220;
   auto car_control = sm["carControl"].getCarControl();
 
-  configFont(p, "Inter", 40, "Regular");
+  p.setFont(InterFont(40, QFont::Normal));
   p.setPen(QColor(255, 255, 255, 200));
 
   QRect rect = QRect(text_x, y, width()/2 - 120, height() - y);
@@ -1357,7 +1338,7 @@ void AnnotatedCameraWidget::drawDebugText(QPainter &p) {
 
   const char* long_state[] = {"off", "pid", "stopping", "starting"};
 
-  configFont(p, "Inter", 35, "Regular");
+  p.setFont(InterFont(35, QFont::Normal));
   p.setPen(QColor(255, 255, 255, 200));
   p.setRenderHint(QPainter::TextAntialiasing);
 
@@ -1466,7 +1447,7 @@ void AnnotatedCameraWidget::drawMisc(QPainter &p) {
 
   QColor color = QColor(255, 255, 255, 230);
 
-  configFont(p, "Inter", 70, "Regular");
+  p.setFont(InterFont(70, QFont::Normal));
   drawText(p, (width()-(UI_BORDER_SIZE*2))/4 + UI_BORDER_SIZE + 20, 140, currentRoadName, 200);
 
   p.restore();

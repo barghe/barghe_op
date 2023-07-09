@@ -123,6 +123,11 @@ protected:
   void drawMisc(QPainter &p);
   void drawHud(QPainter &p, const cereal::ModelDataV2::Reader &model);
 
+  // neokii
+private:
+  ScreenRecoder* recorder;
+  std::shared_ptr<QTimer> record_timer;
+  QPoint startPos;
 };
 
 // container for all onroad widgets
@@ -145,12 +150,6 @@ private:
   QWidget *map = nullptr;
   QHBoxLayout* split;
   bool navDisabled = false;
-
-  // neokii
-private:
-  ScreenRecoder* recorder;
-  std::shared_ptr<QTimer> record_timer;
-  QPoint startPos;
 
 private slots:
   void offroadTransition(bool offroad);
