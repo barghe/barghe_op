@@ -76,7 +76,7 @@ procs = [
   PythonProcess("webjoystick", "tools.joystick.web", onroad=False, callback=notcar),
 
   # neokii
-  PythonProcess("navi_controller", "selfdrive.controls.neokii.navi_controller"),
+  PythonProcess("navi_controller", "selfdrive.controls.neokii.navi_controller", offroad=True),
   PythonProcess("navi_route", "selfdrive.controls.neokii.navi_route", enabled=Params().get_bool('UseExternalNaviRoutes')),
 ]
 
