@@ -8,7 +8,23 @@ def create_lkas11(packer, frame, car_fingerprint, apply_steer, steer_req,
                   torque_fault, lkas11, sys_warning, sys_state, enabled,
                   left_lane, right_lane,
                   left_lane_depart, right_lane_depart, ldws_opt, CP):
-  values = lkas11
+  values = {s: lkas11[s] for s in [
+    "CF_Lkas_LdwsActivemode",
+    "CF_Lkas_LdwsSysState",
+    "CF_Lkas_SysWarning",
+    "CF_Lkas_LdwsLHWarning",
+    "CF_Lkas_LdwsRHWarning",
+    "CF_Lkas_HbaLamp",
+    "CF_Lkas_FcwBasReq",
+    "CF_Lkas_HbaSysState",
+    "CF_Lkas_FcwOpt",
+    "CF_Lkas_HbaOpt",
+    "CF_Lkas_FcwSysState",
+    "CF_Lkas_FcwCollisionWarning",
+    "CF_Lkas_FusionState",
+    "CF_Lkas_FcwOpt_USM",
+    "CF_Lkas_LdwsOpt_USM",
+  ]}
   values["CF_Lkas_LdwsSysState"] = sys_state
   values["CF_Lkas_SysWarning"] = 3 if sys_warning else 0
   values["CF_Lkas_LdwsLHWarning"] = left_lane_depart
@@ -17,7 +33,6 @@ def create_lkas11(packer, frame, car_fingerprint, apply_steer, steer_req,
   values["CF_Lkas_ActToi"] = steer_req
   values["CF_Lkas_ToiFlt"] = torque_fault  # seems to allow actuation on CR_Lkas_StrToqReq
   values["CF_Lkas_MsgCount"] = frame % 0x10
-  values["CF_Lkas_Chksum"] = 0
 
   if CP.flags & HyundaiFlags.SEND_LFA.value:
     values["CF_Lkas_LdwsActivemode"] = int(left_lane) + (int(right_lane) << 1)
@@ -80,7 +95,20 @@ def create_lkas11(packer, frame, car_fingerprint, apply_steer, steer_req,
 
 
 def create_clu11(packer, clu11, button, bus):
-  values = clu11
+  values = {s: clu11[s] for s in [
+    "CF_Clu_CruiseSwState",
+    "CF_Clu_CruiseSwMain",
+    "CF_Clu_SldMainSW",
+    "CF_Clu_ParityBit1",
+    "CF_Clu_VanzDecimal",
+    "CF_Clu_Vanz",
+    "CF_Clu_SPEED_UNIT",
+    "CF_Clu_DetentOut",
+    "CF_Clu_RheostatLevel",
+    "CF_Clu_CluInfo",
+    "CF_Clu_AmpInfo",
+    "CF_Clu_AliveCnt1",
+  ]}
   values["CF_Clu_CruiseSwState"] = button
   values["CF_Clu_AliveCnt1"] = (values["CF_Clu_AliveCnt1"] + 1) % 0x10
   return packer.make_can_msg("CLU11", bus, values)
@@ -147,7 +175,7 @@ def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible, s
     "CR_FCA_Alive": idx % 0xF,
     "PAINT1_Status": 1,
     "FCA_DrvSetStatus": 1,
-    "FCA_Status": 1,  # AEB disabled
+    "FCA_Status": 1, # AEB disabled
   }
   fca11_dat = packer.make_can_msg("FCA11", 0, fca11_values)[2]
   fca11_values["CR_FCA_ChkSum"] = hyundai_checksum(fca11_dat[:7])
