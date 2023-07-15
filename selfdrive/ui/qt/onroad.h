@@ -137,9 +137,10 @@ class OnroadWindow : public QWidget {
 public:
   OnroadWindow(QWidget* parent = 0);
   bool isMapVisible() const { return map && map->isVisible(); }
+  void showMapPanel(bool show) { if (map) map->setVisible(show); }
 
 signals:
-  void mapWindowShown();
+  void mapPanelRequested();
 
 private:
   void paintEvent(QPaintEvent *event);
