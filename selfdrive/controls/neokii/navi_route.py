@@ -75,6 +75,13 @@ class NaviRoute():
         if self.last_client_address is not None:
           instruction.imageUrl = 'http://' + self.last_client_address + ':2859/image?no=' + str(json['type'])
 
+      """maneuvers = []
+      if 'maneuvers' in json:
+        for maneuver in json['maneuvers']:
+          maneuvers.append(maneuver)
+
+      instruction.allManeuvers = maneuvers"""
+
     self.pm.send('navInstruction', msg)
 
 
