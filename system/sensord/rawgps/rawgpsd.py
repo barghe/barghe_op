@@ -88,12 +88,13 @@ measurementStatusGlonassFields = {
 
 
 def try_setup_logs(diag, log_types):
-  for _ in range(3):
+  for _ in range(10):
     try:
       setup_logs(diag, log_types)
       break
     except Exception:
       cloudlog.exception("setup logs failed, trying again")
+      time.sleep(1.0)
   else:
     raise Exception(f"setup logs failed, {log_types=}")
 
@@ -359,7 +360,7 @@ def main() -> NoReturn:
       gps.source = log.GpsLocationData.SensorSource.qcomdiag
       gps.vNED = vNED
       gps.verticalAccuracy = report["q_FltVdop"]
-      gps.bearingAccuracyDeg = report["q_FltHeadingUncRad"] * 180/math.pi
+      gps.bearingAccuracyDeg = report["q_FltHeadingUncRad"] * 180/math.pi if (report["q_FltHeadingUncRad"] != 0) else 180
       gps.speedAccuracy = math.sqrt(sum([x**2 for x in vNEDsigma]))
       # quectel gps verticalAccuracy is clipped to 500, set invalid if so
       gps.flags = 1 if gps.verticalAccuracy != 500 else 0

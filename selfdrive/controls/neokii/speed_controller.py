@@ -5,7 +5,6 @@ from common.numpy_fast import clip, interp
 from cereal import car
 from common.conversions import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN, V_CRUISE_UNSET
-from selfdrive.controls.lib.radar_helpers import RADAR_TO_CAMERA
 from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI, \
   V_CRUISE_MIN_CRUISE_STATE
 from selfdrive.car.hyundai.values import Buttons
@@ -13,6 +12,7 @@ from common.params import Params
 from selfdrive.controls.lib.lateral_planner import TRAJECTORY_SIZE
 from selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from selfdrive.controls.ntune import ntune_common_get
+from selfdrive.controls.radard import RADAR_TO_CAMERA
 
 SYNC_MARGIN = 3.
 CREEP_SPEED = 2.3

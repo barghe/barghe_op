@@ -18,6 +18,12 @@ export GIT_SSH_COMMAND="ssh -i /data/gitkey"
 source ~/.bash_profile
 if [ -f /TICI ]; then
   source /etc/profile
+
+  if ! systemctl is-active --quiet systemd-resolved; then
+    echo "restarting resolved"
+    sudo systemctl start systemd-resolved
+    sleep 3
+  fi
 fi
 if [ -f /data/openpilot/launch_env.sh ]; then
   source /data/openpilot/launch_env.sh
@@ -127,6 +133,28 @@ pipeline {
           }
         }
         */
+
+        stage('scons build test') {
+          agent {
+            dockerfile {
+              filename 'Dockerfile.openpilot_base'
+              args '--user=root'
+            }
+          }
+          steps {
+            sh "git config --global --add safe.directory '*'"
+            sh "git submodule update --init --depth=1 --recursive"
+            sh "scons --clean && scons --no-cache -j42"
+            sh "scons --clean && scons --no-cache --random -j42"
+          }
+
+          post {
+            always {
+              sh "rm -rf ${WORKSPACE}/* || true"
+              sh "rm -rf .* || true"
+            }
+          }
+        }
 
         stage('tizi-tests') {
           agent { docker { image 'ghcr.io/commaai/alpine-ssh'; args '--user=root' } }
