@@ -52,6 +52,18 @@ private:
   bool engageable;
 };
 
+class MapSettingsButton : public QPushButton {
+  Q_OBJECT
+
+public:
+  explicit MapSettingsButton(QWidget *parent = 0);
+
+private:
+  void paintEvent(QPaintEvent *event) override;
+
+  QPixmap settings_img;
+};
+
 // container window for the NVG UI
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
@@ -59,6 +71,8 @@ class AnnotatedCameraWidget : public CameraWidget {
 public:
   explicit AnnotatedCameraWidget(VisionStreamType type, QWidget* parent = 0);
   void updateState(const UIState &s);
+
+  MapSettingsButton *map_settings_btn;
 
 protected:
   void paintGL() override;
@@ -71,9 +85,11 @@ protected:
   inline QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
   inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
 
+  QVBoxLayout *main_layout;
   ExperimentalButton *experimental_btn;
   bool dmActive = false;
-  bool hideDM = false;
+  bool hideBottomIcons = false;
+  bool rightHandDM = false;
   QPixmap dm_img;
   float dm_fade_state = 1.0;
 

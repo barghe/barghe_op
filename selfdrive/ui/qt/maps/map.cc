@@ -8,7 +8,6 @@
 #include "selfdrive/ui/qt/maps/map_helpers.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/ui.h"
-#include "common/params.h"
 
 
 const int PAN_TIMEOUT = 100;
@@ -35,29 +34,6 @@ MapWindow::MapWindow(const QMapboxGLSettings &settings) : m_settings(settings), 
   map_eta->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   map_eta->setFixedHeight(120);
 
-  // Settings button
-  QSize icon_size(120, 120);
-  directions_icon = loadPixmap("../assets/navigation/icon_directions_outlined.svg", icon_size);
-  settings_icon = loadPixmap("../assets/navigation/icon_settings.svg", icon_size);
-
-  settings_btn = new QPushButton(directions_icon, "", this);
-  settings_btn->setIconSize(icon_size);
-  settings_btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  settings_btn->setStyleSheet(R"(
-    QPushButton {
-      background-color: #96000000;
-      border-radius: 50px;
-      padding: 24px;
-      margin-left: 30px;
-    }
-    QPushButton:pressed {
-      background-color: #D9000000;
-    }
-  )");
-  QObject::connect(settings_btn, &QPushButton::clicked, [=]() {
-    emit requestSettings(true);
-  });
-
   error = new QLabel(this);
   error->setStyleSheet(R"(color:white;padding:50px 11px;font-size: 90px; background-color:rgb(0, 0, 0, 150);)");
   error->setAlignment(Qt::AlignCenter);
@@ -65,11 +41,7 @@ MapWindow::MapWindow(const QMapboxGLSettings &settings) : m_settings(settings), 
   overlay_layout->addWidget(error);
   overlay_layout->addWidget(map_instructions);
   overlay_layout->addStretch(1);
-  overlay_layout->addWidget(settings_btn, Qt::AlignLeft);
-  overlay_layout->addSpacing(UI_BORDER_SIZE);
   overlay_layout->addWidget(map_eta);
-
-  if(Params().getBool("UseExternalNaviRoutes")) settings_btn->hide();
 
   auto last_gps_position = coordinate_from_param("LastGPSPosition");
   if (last_gps_position.has_value()) {
@@ -192,10 +164,10 @@ void MapWindow::updateState(const UIState &s) {
 
     // Only open the map on setting destination the first time
     if (allow_open) {
+      emit requestSettings(false);
       emit requestVisible(true); // Show map on destination set/change
       allow_open = false;
     }
-    emit requestSettings(false);
   }
 
   loaded_once = loaded_once || (m_map && m_map->isFullyLoaded());
@@ -254,10 +226,6 @@ void MapWindow::updateState(const UIState &s) {
       }
     } else {
       clearRoute();
-    }
-
-    if (isVisible()) {
-      settings_btn->setIcon(map_eta->isVisible() ? settings_icon : directions_icon);
     }
   }
 
