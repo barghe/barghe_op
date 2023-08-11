@@ -64,7 +64,7 @@ class PointBuckets:
   def __init__(self, x_bounds, min_points, min_points_total):
     self.x_bounds = x_bounds
     self.buckets = {bounds: NPQueue(maxlen=POINTS_PER_BUCKET, rowsize=3) for bounds in x_bounds}
-    self.buckets_min_points = {bounds: min_point for bounds, min_point in zip(x_bounds, min_points)}
+    self.buckets_min_points = dict(zip(x_bounds, min_points))
     self.min_points_total = min_points_total
 
   def bucket_lengths(self):
@@ -244,7 +244,7 @@ class TorqueEstimator:
 
       if self.filtered_points.is_valid():
 
-        if any([val is None or np.isnan(val) for val in [latAccelFactor, latAccelOffset, frictionCoeff]]):
+        if any(val is None or np.isnan(val) for val in [latAccelFactor, latAccelOffset, frictionCoeff]):
           cloudlog.exception("Live torque parameters are invalid.")
           liveTorqueParameters.liveValid = False
           self.reset()

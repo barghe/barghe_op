@@ -586,6 +586,7 @@ struct RadarState @0x9a185389d6fdd05f {
     aLeadTau @12 :Float32;
     modelProb @13 :Float32;
     radar @14 :Bool;
+    radarTrackId @15 :Int32 = -1;
 
     aLeadDEPRECATED @5 :Float32;
   }
@@ -2084,7 +2085,11 @@ struct NavInstruction {
 
   speedLimit @10 :Float32; # m/s
   speedLimitSign @11 :SpeedLimitSign;
-  imageUrl @12 :Text;
+
+  allManeuvers @12 :List(Maneuver);
+  
+  imageUrl @13 :Text;
+  
 
   struct Lane {
     directions @0 :List(Direction);
@@ -2102,7 +2107,13 @@ struct NavInstruction {
   enum SpeedLimitSign {
     mutcd @0; # US Style
     vienna @1; # EU Style
-    }
+  }
+
+  struct Maneuver {
+    distance @0 :Float32;
+    type @1 :Text;
+    modifier @2 :Text;
+  }
 }
 
 struct NavRoute {

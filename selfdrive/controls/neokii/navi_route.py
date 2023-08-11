@@ -88,7 +88,9 @@ class NaviRoute():
 
           maneuvers.append(maneuver)
 
-      #instruction.allManeuvers = maneuvers
+      # TODO
+      # speedLimit, speedLimitSign
+      instruction.allManeuvers = maneuvers
 
     self.pm.send('navInstruction', msg)
 
