@@ -138,6 +138,9 @@ class PandaJungle(Panda):
   def set_ignition(self, enabled):
     self._handle.controlWrite(PandaJungle.REQUEST_OUT, 0xa2, int(enabled), 0, b'')
 
+  def set_can_silent(self, silent):
+    self._handle.controlWrite(PandaJungle.REQUEST_OUT, 0xf5, int(silent), 0, b'')
+
   # ******************* serial *******************
 
   def debug_read(self):
@@ -148,3 +151,8 @@ class PandaJungle(Panda):
         break
       ret.append(lret)
     return b''.join(ret)
+
+  # ******************* header pins *******************
+
+  def set_header_pin(self, pin_num, enabled):
+    self._handle.controlWrite(Panda.REQUEST_OUT, 0xf7, int(pin_num), int(enabled), b'')

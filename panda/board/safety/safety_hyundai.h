@@ -6,7 +6,7 @@
   .max_rate_down = (rate_down), \
   .max_rt_delta = 150, \
   .max_rt_interval = 250000, \
-  .driver_torque_allowance = 50, \
+  .driver_torque_allowance = 60, \
   .driver_torque_factor = 2, \
   .type = TorqueDriverLimited, \
    /* the EPS faults when the steering angle is above a certain threshold for too long. to prevent this, */ \
@@ -231,9 +231,9 @@ static int hyundai_rx_hook(CANPacket_t *to_push) {
 
     // sample wheel speed, averaging opposite corners
     if (addr == 902) {
-      uint32_t hyundai_speed = (GET_BYTES(to_push, 0, 4) & 0x3FFFU) + ((GET_BYTES(to_push, 4, 4) >> 16) & 0x3FFFU);  // FL + RR
-      hyundai_speed /= 2;
-      vehicle_moving = hyundai_speed > HYUNDAI_STANDSTILL_THRSLD;
+      uint32_t front_left_speed = GET_BYTES(to_push, 0, 2) & 0x3FFFU;
+      uint32_t rear_right_speed = GET_BYTES(to_push, 6, 2) & 0x3FFFU;
+      vehicle_moving = (front_left_speed > HYUNDAI_STANDSTILL_THRSLD) || (rear_right_speed > HYUNDAI_STANDSTILL_THRSLD);
     }
 
     if (addr == 916) {
