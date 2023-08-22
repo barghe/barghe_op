@@ -1,15 +1,17 @@
+import time
 import numpy as np
-from common.realtime import sec_since_boot, DT_MDL
-from common.numpy_fast import interp
-from selfdrive.controls.lib.lane_planner import LanePlanner
-from selfdrive.controls.ntune import ntune_common_get
-from system.swaglog import cloudlog
-from selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import LateralMpc
-from selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import N as LAT_MPC_N
-from selfdrive.controls.lib.drive_helpers import CONTROL_N, MIN_SPEED, get_speed_error
-from selfdrive.controls.lib.desire_helper import DesireHelper
+from openpilot.common.realtime import DT_MDL
+from openpilot.common.numpy_fast import interp
+from openpilot.system.swaglog import cloudlog
+from openpilot.selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import LateralMpc
+from openpilot.selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import N as LAT_MPC_N
+from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, MIN_SPEED, get_speed_error
+from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 import cereal.messaging as messaging
 from cereal import log
+
+from openpilot.selfdrive.controls.lib.lane_planner import LanePlanner
+from openpilot.selfdrive.controls.ntune import ntune_common_get
 
 TRAJECTORY_SIZE = 33
 CAMERA_OFFSET = 0.04
@@ -131,7 +133,7 @@ class LateralPlanner:
 
     #  Check for infeasible MPC solution
     mpc_nans = np.isnan(self.lat_mpc.x_sol[:, 3]).any()
-    t = sec_since_boot()
+    t = time.monotonic()
     if mpc_nans or self.lat_mpc.solution_status != 0:
       self.reset_mpc()
       self.x0[3] = measured_curvature * self.v_ego
@@ -155,7 +157,7 @@ class LateralPlanner:
     lateralPlan.psis = self.lat_mpc.x_sol[0:CONTROL_N, 2].tolist()
 
     lateralPlan.curvatures = (self.lat_mpc.x_sol[0:CONTROL_N, 3]/self.v_ego).tolist()
-    lateralPlan.curvatureRates = [float(x/self.v_ego) for x in self.lat_mpc.u_sol[0:CONTROL_N - 1]] + [0.0]
+    lateralPlan.curvatureRates = [float(x.item() / self.v_ego) for x in self.lat_mpc.u_sol[0:CONTROL_N - 1]] + [0.0]
 
     lateralPlan.mpcSolutionValid = bool(plan_solution_valid)
     lateralPlan.solverExecutionTime = self.lat_mpc.solve_time

@@ -3,9 +3,9 @@ import math
 
 from cereal import car
 from opendbc.can.parser import CANParser
-from selfdrive.car.interfaces import RadarInterfaceBase
-from selfdrive.car.hyundai.values import DBC, CANFD_CAR
-from selfdrive.controls.neokii.cruise_state_manager import is_radar_point
+from openpilot.selfdrive.car.interfaces import RadarInterfaceBase
+from openpilot.selfdrive.car.hyundai.values import DBC, CANFD_CAR
+from openpilot.selfdrive.controls.neokii.cruise_state_manager import is_radar_point
 
 RADAR_START_ADDR = 0x500
 RADAR_MSG_COUNT = 32
@@ -40,7 +40,7 @@ class RadarInterface(RadarInterfaceBase):
 
   def update(self, can_strings):
     if self.radar_off_can or (self.rcp is None):
-      return None
+      return super().update(None)
 
     vls = self.rcp.update_strings(can_strings)
     self.updated_messages.update(vls)

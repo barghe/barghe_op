@@ -1,4 +1,4 @@
-from selfdrive.car import dbc_dict
+from openpilot.selfdrive.car import dbc_dict
 
 
 def merge(A, B):

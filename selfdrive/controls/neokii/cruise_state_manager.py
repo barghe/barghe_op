@@ -1,11 +1,11 @@
 
 from cereal import car
-from common.numpy_fast import clip
-from selfdrive.car import create_button_event
-from common.conversions import Conversions as CV
-from common.params import Params, put_nonblocking
-from selfdrive.car.hyundai.values import CANFD_CAR
-from selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, V_CRUISE_ENABLE_MIN
+from openpilot.common.numpy_fast import clip
+from openpilot.selfdrive.car import create_button_event
+from openpilot.common.conversions import Conversions as CV
+from openpilot.common.params import Params, put_nonblocking
+from openpilot.selfdrive.car.hyundai.values import CANFD_CAR
+from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, V_CRUISE_ENABLE_MIN
 
 V_CRUISE_MIN_CRUISE_STATE = 10
 

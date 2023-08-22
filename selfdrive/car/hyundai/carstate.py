@@ -3,15 +3,18 @@ import copy
 import math
 
 from cereal import car
-from common.conversions import Conversions as CV
-from common.numpy_fast import interp
+from openpilot.common.conversions import Conversions as CV
+
+from openpilot.common.numpy_fast import interp
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
-from selfdrive.car.hyundai.interface import BUTTONS_DICT
-from selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
-from selfdrive.car.hyundai.hyundaicanfd import CanBus
-from selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CAN_GEARS, CANFD_CAR, EV_CAR, HYBRID_CAR, Buttons, CarControllerParams
-from selfdrive.car.interfaces import CarStateBase
+from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
+from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CAN_GEARS, CAMERA_SCC_CAR, \
+                                                   CANFD_CAR, EV_CAR, HYBRID_CAR, Buttons, CarControllerParams
+from openpilot.selfdrive.car.interfaces import CarStateBase
+
+from openpilot.selfdrive.car.hyundai.interface import BUTTONS_DICT
+from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 
 PREV_BUTTON_SAMPLES = 8
 CLUSTER_SAMPLE_RATE = 20  # frames

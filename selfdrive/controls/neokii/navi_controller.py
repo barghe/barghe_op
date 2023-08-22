@@ -10,10 +10,11 @@ import fcntl
 import struct
 from threading import Thread
 from cereal import messaging
-from common.numpy_fast import clip, interp
-from common.realtime import sec_since_boot, Ratekeeper
-from common.params import Params
-from common.conversions import Conversions as CV
+from openpilot.common.numpy_fast import clip, interp
+from openpilot.common.realtime import Ratekeeper
+from openpilot.common.params import Params
+from openpilot.common.conversions import Conversions as CV
+import time
 
 CAMERA_SPEED_FACTOR = 1.05
 
@@ -177,13 +178,13 @@ class NaviServer:
           try:
             if 'active' in json_obj:
               self.active = json_obj['active']
-              self.last_updated_active = sec_since_boot()
+              self.last_updated_active = time.monotonic()
           except:
             pass
 
           if 'road_limit' in json_obj:
             self.json_road_limit = json_obj['road_limit']
-            self.last_updated = sec_since_boot()
+            self.last_updated = time.monotonic()
 
         finally:
           self.lock.release()
@@ -199,7 +200,7 @@ class NaviServer:
     return ret
 
   def check(self):
-    now = sec_since_boot()
+    now = time.monotonic()
     if now - self.last_updated > 6.:
       try:
         self.lock.acquire()
@@ -290,7 +291,7 @@ class SpeedLimiter:
     self.haptic_feedback_speed_camera = Params().get_bool('HapticFeedbackWhenSpeedCamera')
     self.prev_active_cam = False
     self.active_cam = False
-    self.active_cam_time = sec_since_boot()
+    self.active_cam_time = time.monotonic()
     self.active_cam_end_time = 0
 
   def recv(self):
@@ -321,7 +322,7 @@ class SpeedLimiter:
       self.active_cam = limit_speed > 0 and left_dist > 0
 
       if self.haptic_feedback_speed_camera:
-        now = sec_since_boot()
+        now = time.monotonic()
         if self.prev_active_cam != self.active_cam:
           self.prev_active_cam = self.active_cam
           if self.active_cam:
@@ -329,7 +330,7 @@ class SpeedLimiter:
               self.active_cam_end_time = now + 1.5
               self.active_cam_time = now
 
-        if self.active_cam_end_time - sec_since_boot() > 0:
+        if self.active_cam_end_time - time.monotonic() > 0:
           return True
 
     return False

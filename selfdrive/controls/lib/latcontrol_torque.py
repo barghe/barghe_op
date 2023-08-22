@@ -1,11 +1,11 @@
 import math
 
 from cereal import log
-from common.numpy_fast import interp
-from selfdrive.controls.lib.latcontrol import LatControl
-from selfdrive.controls.lib.pid import PIDController
-from selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
-from selfdrive.controls.ntune import nTune
+from openpilot.common.numpy_fast import interp
+from openpilot.selfdrive.controls.lib.latcontrol import LatControl
+from openpilot.selfdrive.controls.lib.pid import PIDController
+from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
+from openpilot.selfdrive.controls.ntune import nTune
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -91,10 +91,10 @@ class LatControlTorque(LatControl):
       pid_log.desiredLateralAccel = desired_lateral_accel
       pid_log.saturated = self._check_saturation(self.steer_max - abs(output_torque) < 1e-3, CS, steer_limited)
       angle_steers_des = math.degrees(VM.get_steer_from_curvature(-desired_curvature, CS.vEgo, params.roll)) + params.angleOffsetDeg
-	
+
     pid_log.latAccelFactor = self.torque_params.latAccelFactor
     pid_log.latAccelOffset = self.torque_params.latAccelOffset
     pid_log.friction = self.torque_params.friction
-	
+
     # TODO left is positive in this convention
     return -output_torque, angle_steers_des, pid_log
