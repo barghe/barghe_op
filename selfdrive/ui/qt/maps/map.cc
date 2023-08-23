@@ -14,8 +14,8 @@ const int INTERACTION_TIMEOUT = 100;
 
 const float MAX_ZOOM = 17;
 const float MIN_ZOOM = 14;
-const float MAX_PITCH = 50;
-const float MIN_PITCH = 0;
+const float MAX_PITCH = 60;
+const float MIN_PITCH = 60;
 const float MAP_SCALE = 2;
 
 MapWindow::MapWindow(const QMapboxGLSettings &settings) : m_settings(settings), velocity_filter(0, 10, 0.05) {
@@ -261,7 +261,8 @@ void MapWindow::initializeGL() {
 
   m_map->setMargins({0, 350, 0, 50});
   m_map->setPitch(MIN_PITCH);
-  m_map->setStyleUrl("mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj");
+  //m_map->setStyleUrl("mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj");
+  m_map->setStyleUrl("mapbox://styles/neokii/clln2h0yb000201qxe4s7bom9");
 
   QObject::connect(m_map.data(), &QMapboxGL::mapChanged, [=](QMapboxGL::MapChange change) {
     // set global animation duration to 0 ms so visibility changes are instant
