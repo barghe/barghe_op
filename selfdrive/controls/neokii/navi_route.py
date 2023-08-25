@@ -112,30 +112,29 @@ class NaviRoute():
       return data
 
     def handle(self):
-
-      length_bytes = self.recv(4)
-      if len(length_bytes) == 4:
-        try:
+      try:
+        length_bytes = self.recv(4)
+        if len(length_bytes) == 4:
           length = struct.unpack(">I", length_bytes)[0]
           if length >= 4:
-            if length > 1024*1024*10:
+            if length > 1024 * 1024 * 10:
               raise Exception
 
             self.server.navi_route.last_client_address = self.client_address[0]
 
             type_bytes = self.recv(4)
             type = struct.unpack(">I", type_bytes)[0]
-            data = self.recv(length-4)
+            data = self.recv(length - 4)
 
-            if type == 0: # route
+            if type == 0:  # route
               routes = []
               count = int(len(data) / 8)
 
               if count > 0:
                 for i in range(count):
                   offset = i * 8
-                  lat = struct.unpack(">f", data[offset:offset+4])[0]
-                  lon = struct.unpack(">f", data[offset+4:offset+8])[0]
+                  lat = struct.unpack(">f", data[offset:offset + 4])[0]
+                  lon = struct.unpack(">f", data[offset + 4:offset + 8])[0]
 
                   coord = Coordinate.from_mapbox_tuple((lon, lat))
                   routes.append(coord)
@@ -145,12 +144,10 @@ class NaviRoute():
               else:
                 self.server.navi_route.dispatch_route(None)
 
-            elif type == 1: # instruction
+            elif type == 1:  # instruction
               self.server.navi_route.dispatch_instruction(json.loads(data.decode('utf-8')))
-
-        except Exception as e:
-          print(e)
-          pass
+      except:
+        pass
 
       self.request.close()
 
