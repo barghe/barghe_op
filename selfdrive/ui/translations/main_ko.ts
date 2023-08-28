@@ -825,6 +825,10 @@ location set</source>
         <source>Start over</source>
         <translation type="vanished">다시 시작</translation>
     </message>
+    <message>
+        <source>Select a language</source>
+        <translation>언어를 선택하세요</translation>
+    </message>
 </context>
 <context>
     <name>SetupWidget</name>

@@ -1,7 +1,8 @@
+import capnp
 
+from typing import Dict
 from cereal import car
 from openpilot.common.numpy_fast import clip
-from openpilot.selfdrive.car import create_button_event
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params, put_nonblocking
 from openpilot.selfdrive.car.hyundai.values import CANFD_CAR
@@ -16,6 +17,17 @@ ButtonType = car.CarState.ButtonEvent.Type
 def is_radar_point(CP):
   return (CP.openpilotLongitudinalControl and CP.carFingerprint in CANFD_CAR) or \
     (CP.openpilotLongitudinalControl and CP.sccBus == 0)
+
+def create_button_event(cur_but: int, prev_but: int, buttons_dict: Dict[int, capnp.lib.capnp._EnumModule],
+                        unpressed: int = 0) -> capnp.lib.capnp._DynamicStructBuilder:
+  if cur_but != unpressed:
+    be = car.CarState.ButtonEvent(pressed=True)
+    but = cur_but
+  else:
+    be = car.CarState.ButtonEvent(pressed=False)
+    but = prev_but
+  be.type = buttons_dict.get(but, ButtonType.unknown)
+  return be
 
 
 class CruiseStateManager:
