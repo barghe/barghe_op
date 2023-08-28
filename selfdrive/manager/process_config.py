@@ -55,7 +55,7 @@ procs = [
   NativeProcess("dmonitoringmodeld", "selfdrive/modeld", ["./dmonitoringmodeld"], driverview, enabled=(not PC or WEBCAM)),
   NativeProcess("encoderd", "system/loggerd", ["./encoderd"], only_onroad),
   NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], notcar),
-  #NativeProcess("loggerd", "system/loggerd", ["./loggerd"], logging),
+  NativeProcess("loggerd", "system/loggerd", ["./loggerd"], logging),
   NativeProcess("modeld", "selfdrive/modeld", ["./modeld"], only_onroad),
   NativeProcess("mapsd", "selfdrive/navd", ["./mapsd"], only_onroad),
   NativeProcess("navmodeld", "selfdrive/modeld", ["./navmodeld"], only_onroad),
@@ -81,7 +81,7 @@ procs = [
   PythonProcess("thermald", "selfdrive.thermald.thermald", always_run),
   #PythonProcess("tombstoned", "selfdrive.tombstoned", always_run, enabled=not PC),
   PythonProcess("updated", "selfdrive.updated", only_offroad, enabled=not PC),
-  PythonProcess("uploader", "system.loggerd.uploader", always_run),
+  #PythonProcess("uploader", "system.loggerd.uploader", always_run),
   #PythonProcess("statsd", "selfdrive.statsd", always_run),
 
   # debug procs
