@@ -25,9 +25,9 @@ const std::tuple<AudibleAlert, QString, int, float> sound_list[] = {
   {AudibleAlert::WARNING_SOFT, "warning_soft.wav", QSoundEffect::Infinite, MAX_VOLUME},
   {AudibleAlert::WARNING_IMMEDIATE, "warning_immediate.wav", QSoundEffect::Infinite, MAX_VOLUME},
 
-  {AudibleAlert::SLOWING_DOWN_SPEED, "slowing_down_speed.wav", 0},
-  {AudibleAlert::CRUISE_ON, "cruise_on.wav", 0},
-  {AudibleAlert::CRUISE_OFF, "cruise_off.wav", 0},
+  {AudibleAlert::SLOWING_DOWN_SPEED, "slowing_down_speed.wav", 0, MAX_VOLUME},
+  {AudibleAlert::CRUISE_ON, "cruise_on.wav", 0, MAX_VOLUME},
+  {AudibleAlert::CRUISE_OFF, "cruise_off.wav", 0, MAX_VOLUME},
 };
 
 class Sound : public QObject {
