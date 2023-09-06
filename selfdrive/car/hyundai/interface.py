@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from cereal import car
 from common.numpy_fast import interp
 from panda import Panda
