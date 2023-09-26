@@ -102,9 +102,6 @@ class LateralPlanner:
 
       d_path_xyz = self.path_xyz
 
-    d_path_xyz[:, 1] += ntune_common_get('pathOffset')
-    d_path_xyz[:, 1] *= ntune_common_get('pathFactor')
-
     self.lat_mpc.set_weights(PATH_COST,
                              LATERAL_MOTION_COST,
                              LATERAL_ACCEL_COST, LATERAL_JERK_COST,
@@ -120,11 +117,15 @@ class LateralPlanner:
     assert len(yaw_rate_pts) == LAT_MPC_N + 1
     lateral_factor = np.clip(self.factor1 - (self.factor2 * self.v_plan**2), 0.0, np.inf)
     p = np.column_stack([self.v_plan, lateral_factor])
+
+    pathOffset = ntune_common_get('pathOffset')
+    pathFactor = ntune_common_get('pathFactor')
+
     self.lat_mpc.run(self.x0,
                      p,
-                     y_pts,
-                     heading_pts,
-                     yaw_rate_pts)
+                     (y_pts + pathOffset) * pathFactor,
+                     heading_pts * pathFactor,
+                     yaw_rate_pts * pathFactor)
     # init state for next iteration
     # mpc.u_sol is the desired second derivative of psi given x0 curv state.
     # with x0[3] = measured_yaw_rate, this would be the actual desired yaw rate.
