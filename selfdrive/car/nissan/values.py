@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Dict, List, Optional, Union
 
 from cereal import car
@@ -20,7 +21,7 @@ class CarControllerParams:
     pass
 
 
-class CAR:
+class CAR(StrEnum):
   XTRAIL = "NISSAN X-TRAIL 2017"
   LEAF = "NISSAN LEAF 2018"
   # Leaf with ADAS ECU found behind instrument cluster instead of glovebox
