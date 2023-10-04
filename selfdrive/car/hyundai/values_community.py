@@ -1,3 +1,4 @@
+from enum import StrEnum
 from openpilot.selfdrive.car import dbc_dict
 
 
@@ -7,7 +8,7 @@ def merge(A, B):
     d[key] = list(A[key]) + list(B[key])
   return d
 
-class CAR:
+class CAR(StrEnum):
   ELANTRA_GT_I30 = "HYUNDAI I30 N LINE 2019 & GT 2018 DCT"
   GRANDEUR_IG = "HYUNDAI GRANDEUR 2018"
   GRANDEUR_IG_HEV = "HYUNDAI GRANDEUR IG HEV 2019"
