@@ -1,5 +1,5 @@
-from openpilot.selfdrive.car import STD_CARGO_KG
-from openpilot.selfdrive.car.hyundai.values_community import CAR
+
+from openpilot.selfdrive.car.hyundai.values import CAR
 from openpilot.common.conversions import Conversions as CV
 
 def get_params(candidate, ret):
