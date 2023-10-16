@@ -202,6 +202,7 @@ class CarController:
           is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
           boost = start_boost * is_accelerating
           accel += boost
+          accel = clip(accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
 
         stock_cam = False
         if self.CP.sccBus == 2:
