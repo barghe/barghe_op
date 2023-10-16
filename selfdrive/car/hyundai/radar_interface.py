@@ -9,6 +9,8 @@ from openpilot.selfdrive.controls.neokii.cruise_state_manager import is_radar_po
 RADAR_START_ADDR = 0x500
 RADAR_MSG_COUNT = 32
 
+# POC for parsing corner radars: https://github.com/commaai/openpilot/pull/24221/
+
 def get_radar_can_parser(CP):
 
   if CP.carFingerprint in CANFD_CAR or is_radar_point(CP):
