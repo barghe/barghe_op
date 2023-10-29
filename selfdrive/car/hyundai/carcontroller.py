@@ -72,7 +72,7 @@ class CarController:
     self.ldws_opt = params.get_bool('IsLdwsCar')
     self.e2e_long = params.get_bool('ExperimentalMode')
 
-    self.stock_accel_weight = 0
+    self.stock_accel_weight = 0.0
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -277,9 +277,7 @@ class CarController:
       self.stock_accel_weight += DT_CTRL / 3.
     else:
       self.stock_accel_weight -= DT_CTRL / 3.
-
-    self.stock_weight = clip(self.stock_accel_weight, 0., 1.)
-
-    accel = stock_accel * self.stock_weight + apply_accel * (1. - self.stock_weight)
+    self.stock_accel_weight = clip(self.stock_accel_weight, 0., 1.)
+    accel = stock_accel * self.stock_accel_weight + apply_accel * (1. - self.stock_accel_weight)
     return min(accel, apply_accel), stock_cam
 
