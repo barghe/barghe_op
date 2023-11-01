@@ -63,6 +63,7 @@ class LateralPlanner:
       d_path_xyz = self.path_xyz
 
     d_path_xyz[:, 1] += ntune_common_get('pathOffset')
+    d_path_xyz[:, 1] *= ntune_common_get('pathFactor')
 
     self.lat_mpc.set_weights(MPC_COST_LAT.PATH, MPC_COST_LAT.HEADING, ntune_common_get('steerRateCost'))
 
