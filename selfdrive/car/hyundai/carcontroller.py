@@ -68,9 +68,9 @@ class CarController:
     self.last_lead_distance = 0
     self.resume_wait_timer = 0
 
-    params = Params()
-    self.ldws_opt = params.get_bool('IsLdwsCar')
-    self.e2e_long = params.get_bool('ExperimentalMode')
+    self.param = Params()
+    self.ldws_opt = self.param.get_bool('IsLdwsCar')
+    self.e2e_long = self.param.get_bool('ExperimentalMode')
 
     self.stock_accel_weight = 0.0
 
@@ -198,11 +198,14 @@ class CarController:
         jerk = 3.0 if actuators.longControlState == LongCtrlState.pid else 1.0
 
         if CC.longActive:
-          start_boost = interp(CS.out.vEgo, [CREEP_SPEED, 1.6 * CREEP_SPEED], [0.2 if self.e2e_long else 0.5, 0.0])
-          is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
-          boost = start_boost * is_accelerating
-          accel += boost
-          accel = clip(accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+          if self.frame % 500 == 0:
+            self.e2e_long = self.param.get_bool('ExperimentalMode')
+          if not self.e2e_long:
+            start_boost = interp(CS.out.vEgo, [CREEP_SPEED, 1.6 * CREEP_SPEED], [0.3, 0.0])
+            is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
+            boost = start_boost * is_accelerating
+            accel += boost
+            accel = clip(accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
 
         stock_cam = False
         if self.CP.sccBus == 2:
