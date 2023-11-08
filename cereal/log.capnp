@@ -956,6 +956,7 @@ struct ModelDataV2 {
     yawStd @6 :List(Float32);
     yawRateStd @7 :List(Float32);
   }
+
 }
 
 struct EncodeIndex {
