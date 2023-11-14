@@ -56,8 +56,13 @@ class LateralPlanner:
     lateralPlan.modelMonoTime = sm.logMonoTime['modelV2']
     lateralPlan.dPathPoints = self.path_xyz[:,1].tolist()
     lateralPlan.psis = self.x_sol[0:CONTROL_N, 2].tolist()
+    lateralPlan.distances = self.x_sol[0:CONTROL_N, 0].tolist()
 
-    lateralPlan.curvatures = (self.x_sol[0:CONTROL_N, 3]/self.v_ego).tolist()
+    if len(self.v_plan) == TRAJECTORY_SIZE:
+      lateralPlan.curvatures = (self.x_sol[0:CONTROL_N, 3]/self.v_plan[0:CONTROL_N]).tolist()
+    else:
+      lateralPlan.curvatures = (self.x_sol[0:CONTROL_N, 3]/self.v_ego).tolist()
+
     lateralPlan.curvatureRates = [float(0) for _ in range(CONTROL_N-1)] # TODO: unused
 
     lateralPlan.mpcSolutionValid = bool(1)
