@@ -214,6 +214,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     // Community
     {"SupportedCars", PERSISTENT},
     {"SelectedCar", PERSISTENT},
+    {"UseLanelines", PERSISTENT},
     {"SccOnBus2", PERSISTENT},
     {"CruiseStateControl", PERSISTENT},
     {"SccGapAdjust", PERSISTENT},
