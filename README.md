@@ -4,6 +4,8 @@
 * loggerd, uploader 프로세스를 활성화(기본적으로 비활성화)할 경우 기기가 콤마서버에서 차단될 수 있으니 주의하시기 바랍니다.
 
 
+------
+By installing this software you accept all responsibility for anything that might occur while you use it. All contributors to this fork are not liable. Use at your own risk.
 
 Licensing
 ------
