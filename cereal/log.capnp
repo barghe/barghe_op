@@ -1090,6 +1090,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   solverState @33 :SolverState;
 
   distances @34 :List(Float32);
+  fullCurvatures @35 :List(Float32);
 
   struct SolverState {
     x @0 :List(List(Float32));

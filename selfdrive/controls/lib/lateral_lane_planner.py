@@ -137,6 +137,7 @@ class LateralLanePlanner:
     lateralPlan.dPathPoints = self.y_pts.tolist()
     lateralPlan.psis = self.lat_mpc.x_sol[0:CONTROL_N, 2].tolist()
     lateralPlan.distances = self.lat_mpc.x_sol[0:CONTROL_N, 0].tolist()
+    lateralPlan.fullCurvatures = (self.lat_mpc.x_sol[:, 3] / self.v_ego).tolist()
 
     if len(self.v_plan) == TRAJECTORY_SIZE:
       lateralPlan.curvatures = (self.lat_mpc.x_sol[0:CONTROL_N, 3] / self.v_plan[0:CONTROL_N]).tolist()
