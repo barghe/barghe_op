@@ -298,7 +298,16 @@ class LongitudinalMpc:
     jerk_factor = get_jerk_factor(personality)
     if self.mode == 'acc':
       a_change_cost = A_CHANGE_COST if prev_accel_constraint else 0
-      cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
+      #cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
+
+      if v_ego < 0.1 or a_desired > 0.:
+        x_cost = interp(v_ego, [1., 6.], [0.1, X_EGO_COST])
+        v_cost = interp(v_ego, [1., 6.], [0.2, V_EGO_COST])
+        a_cost = interp(v_ego, [1., 6.], [5.0, A_EGO_COST])
+      else:
+        x_cost, v_cost, a_cost = 0., 0., 0.
+
+      cost_weights = [X_EGO_OBSTACLE_COST, x_cost, v_cost, a_cost, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
       constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
     elif self.mode == 'blended':
       a_change_cost = 40.0 if prev_accel_constraint else 0
@@ -379,10 +388,6 @@ class LongitudinalMpc:
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
       self.params[:,5] = LEAD_DANGER_FACTOR
-      #if self.status:
-      #  d_rel = radarstate.leadOne.dRel if radarstate.leadOne.status else radarstate.leadTwo.dRel
-      #  self.params[:, 5] = interp(d_rel, [STOP_DISTANCE, 20], [1.0, 0.7])
-
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
       v_lower = v_ego + (T_IDXS * self.cruise_min_a * 1.05)
@@ -395,7 +400,14 @@ class LongitudinalMpc:
       self.source = SOURCES[np.argmin(x_obstacles[0])]
 
       # These are not used in ACC mode
-      x[:], v[:], a[:], j[:] = 0.0, 0.0, 0.0, 0.0
+      #x[:], v[:], a[:], j[:] = 0.0, 0.0, 0.0, 0.0
+
+      cruise_target = T_IDXS * np.clip(v_cruise, v_ego - 2.0, 1e3) + x[0]
+      xforward = ((v[1:] + v[:-1]) / 2) * (T_IDXS[1:] - T_IDXS[:-1])
+      x = np.cumsum(np.insert(xforward, 0, x[0]))
+
+      x_and_cruise = np.column_stack([x, cruise_target])
+      x = np.min(x_and_cruise, axis=1)
 
     elif self.mode == 'blended':
       self.params[:,5] = 1.0
