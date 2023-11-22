@@ -13,7 +13,6 @@ from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, Buttons, CarCon
 from openpilot.selfdrive.car.interfaces import ACCEL_MAX, ACCEL_MIN
 from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
-from openpilot.selfdrive.controls.neokii.speed_controller import CREEP_SPEED
 from openpilot.common.params import Params
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -96,7 +95,7 @@ class CarController:
     self.apply_steer_last = apply_steer
 
     # accel + longitudinal
-    accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+    accel = clip(actuators.accel, ACCEL_MIN, ACCEL_MAX)
     stopping = actuators.longControlState == LongCtrlState.stopping
     set_speed_in_units = hud_control.setSpeed * (CV.MS_TO_KPH if CS.is_metric else CV.MS_TO_MPH)
 

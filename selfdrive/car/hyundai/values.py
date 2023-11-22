@@ -15,9 +15,6 @@ Ecu = car.CarParams.Ecu
 
 
 class CarControllerParams:
-  ACCEL_MIN = -3.5 # m/s^2
-  ACCEL_MAX = 2.0 # m/s^2
-
   def __init__(self, CP):
     self.STEER_DELTA_UP = 3
     self.STEER_DELTA_DOWN = 6
