@@ -4,6 +4,7 @@ import time
 import numpy as np
 from cereal import log
 from openpilot.common.numpy_fast import clip, interp
+from openpilot.selfdrive.controls.ntune import ntune_common_get
 from openpilot.system.swaglog import cloudlog
 # WARNING: imports outside of constants will not trigger a rebuild
 from openpilot.selfdrive.modeld.constants import index_function
@@ -337,8 +338,8 @@ class LongitudinalMpc:
     v_ego = self.x0[1]
     if lead is not None and lead.status:
       x_lead = lead.dRel if lead.radar else max(lead.dRel-DIFF_RADAR_VISION, 0.)
-      v_lead = lead.vLead
-      a_lead = lead.aLeadK * 0.8
+      v_lead = lead.vLeadK
+      a_lead = lead.aLeadK * ntune_common_get('longLeadSensitivity')
       a_lead_tau = lead.aLeadTau
     else:
       # Fake a fast lead car, so mpc can keep running in the same mode

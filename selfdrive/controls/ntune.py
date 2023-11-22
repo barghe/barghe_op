@@ -174,6 +174,9 @@ class nTune():
     if self.checkValue("pathFactor", 0.8, 1.1, 1.0):
       updated = True
 
+    if self.checkValue("longLeadSensitivity", 0.5, 1.2, 0.8):
+      updated = True
+
     return updated
 
   def checkValidIndi(self):
