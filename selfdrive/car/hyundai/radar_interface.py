@@ -13,18 +13,17 @@ RADAR_MSG_COUNT = 32
 
 def get_radar_can_parser(CP):
 
-  frequency = math.ceil(1. / CP.radarTimeStep)
   if CP.carFingerprint in CANFD_CAR or is_radar_point(CP):
 
     if DBC[CP.carFingerprint]['radar'] is None:
       return None
 
-    messages = [(f"RADAR_TRACK_{addr:x}", frequency) for addr in range(RADAR_START_ADDR, RADAR_START_ADDR + RADAR_MSG_COUNT)]
+    messages = [(f"RADAR_TRACK_{addr:x}", 50) for addr in range(RADAR_START_ADDR, RADAR_START_ADDR + RADAR_MSG_COUNT)]
     return CANParser(DBC[CP.carFingerprint]['radar'], messages, 1)
 
   else:
     messages = [
-      ("SCC11", frequency),
+      ("SCC11", 50),
     ]
     return CANParser(DBC[CP.carFingerprint]['pt'], messages, CP.sccBus)
 
