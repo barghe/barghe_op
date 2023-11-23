@@ -290,12 +290,6 @@ class LongitudinalMpc:
       self.solver.cost_set(i, 'Zl', Zl)
 
   def set_weights(self, v_ego=0., a_desired=0., prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
-
-    # Prevent sudden acceleration changes (jerk) after gas overriding.
-    # Proposed by ajouatom
-    if not prev_accel_constraint:
-      self.prev_a = np.full(N+1, a_desired)
-
     jerk_factor = get_jerk_factor(personality)
     if self.mode == 'acc':
       a_change_cost = A_CHANGE_COST if prev_accel_constraint else 0
