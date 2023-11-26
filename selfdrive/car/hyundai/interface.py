@@ -292,7 +292,6 @@ class CarInterface(CarInterfaceBase):
     ret.startAccel = 1.0
     ret.longitudinalActuatorDelayLowerBound = 0.5
     ret.longitudinalActuatorDelayUpperBound = 0.5
-    ret.radarTimeStep = 0.02  # 50hz
 
     # *** feature detection ***
     if candidate in CANFD_CAR:
@@ -338,6 +337,7 @@ class CarInterface(CarInterfaceBase):
         ret.openpilotLongitudinalControl = True
         ret.radarUnavailable = False
         ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiLegacy)]
+        ret.radarTimeStep = 0.02  # 50hz
 
     if ret.openpilotLongitudinalControl and ret.sccBus == 0 and not Params().get_bool('CruiseStateControl'):
       ret.pcmCruise = False
