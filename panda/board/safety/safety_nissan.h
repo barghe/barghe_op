@@ -72,14 +72,14 @@ static void nissan_rx_hook(CANPacket_t *to_push) {
         gas_pressed = GET_BYTE(to_push, 0) > 3U;
       }
     }
-  }
 
-  // X-trail 0x454, Leaf  0x239
-  if ((addr == 0x454) || (addr == 0x239)) {
-    if (addr == 0x454){
-      brake_pressed = (GET_BYTE(to_push, 2) & 0x80U) != 0U;
-    } else {
-      brake_pressed = ((GET_BYTE(to_push, 4) >> 5) & 1U) != 0U;
+    // X-trail 0x454, Leaf 0x239
+    if ((addr == 0x454) || (addr == 0x239)) {
+      if (addr == 0x454){
+        brake_pressed = (GET_BYTE(to_push, 2) & 0x80U) != 0U;
+      } else {
+        brake_pressed = ((GET_BYTE(to_push, 4) >> 5) & 1U) != 0U;
+      }
     }
   }
 
@@ -94,7 +94,7 @@ static void nissan_rx_hook(CANPacket_t *to_push) {
 
 
 static bool nissan_tx_hook(CANPacket_t *to_send) {
-  int tx = 1;
+  bool tx = true;
   int addr = GET_ADDR(to_send);
   bool violation = false;
 
@@ -118,7 +118,7 @@ static bool nissan_tx_hook(CANPacket_t *to_send) {
   }
 
   if (violation) {
-    tx = 0;
+    tx = false;
   }
 
   return tx;
@@ -155,6 +155,5 @@ const safety_hooks nissan_hooks = {
   .init = nissan_init,
   .rx = nissan_rx_hook,
   .tx = nissan_tx_hook,
-  .tx_lin = nooutput_tx_lin_hook,
   .fwd = nissan_fwd_hook,
 };

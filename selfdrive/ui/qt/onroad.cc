@@ -648,114 +648,6 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   drawBottomIcons(p);
 }
 
-static const QColor get_tpms_color(float tpms) {
-    if(tpms < 5 || tpms > 60) // N/A
-        return QColor(255, 255, 255, 220);
-    if(tpms < 31)
-        return QColor(255, 90, 90, 220);
-    return QColor(255, 255, 255, 220);
-}
-
-static const QString get_tpms_text(float tpms) {
-    if(tpms < 5 || tpms > 60)
-        return "";
-
-    char str[32];
-    snprintf(str, sizeof(str), "%.0f", round(tpms));
-    return QString(str);
-}
-
-void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
-  p.save();
-  const SubMaster &sm = *(uiState()->sm);
-  auto car_state = sm["carState"].getCarState();
-  auto car_control = sm["carControl"].getCarControl();
-
-  // tpms
-  {
-    const int w = 58;
-    const int h = 126;
-    const int x = 110;
-    const int y = height() - h - 85;
-
-    auto tpms = car_state.getTpms();
-    const float fl = tpms.getFl();
-    const float fr = tpms.getFr();
-    const float rl = tpms.getRl();
-    const float rr = tpms.getRr();
-
-    p.setOpacity(0.8);
-    p.drawPixmap(x, y, w, h, ic_tire_pressure);
-
-    p.setFont(InterFont(38, QFont::Bold));
-    QFontMetrics fm(p.font());
-    QRect rcFont = fm.boundingRect("9");
-
-    int center_x = x + 3;
-    int center_y = y + h/2;
-    const int marginX = (int)(rcFont.width() * 2.7f);
-    const int marginY = (int)((h/2 - rcFont.height()) * 0.7f);
-
-    drawText2(p, center_x-marginX, center_y-marginY-rcFont.height(), Qt::AlignRight, get_tpms_text(fl), get_tpms_color(fl));
-    drawText2(p, center_x+marginX, center_y-marginY-rcFont.height(), Qt::AlignLeft, get_tpms_text(fr), get_tpms_color(fr));
-    drawText2(p, center_x-marginX, center_y+marginY, Qt::AlignRight, get_tpms_text(rl), get_tpms_color(rl));
-    drawText2(p, center_x+marginX, center_y+marginY, Qt::AlignLeft, get_tpms_text(rr), get_tpms_color(rr));
-  }
-
-  int x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * 2;
-  const int y = rect().bottom() - UI_FOOTER_HEIGHT / 2 - 10;
-
-  // cruise gap
-  int gap = car_state.getCruiseState().getGapAdjust();
-  int autoTrGap = car_control.getAutoTrGap(); // TODO - neokii
-
-  p.setPen(Qt::NoPen);
-  p.setBrush(QBrush(QColor(0, 0, 0, 255 * .1f)));
-  p.drawEllipse(x - radius / 2, y - radius / 2, radius, radius);
-
-  QString str;
-  float textSize = 50.f;
-  QColor textColor = QColor(255, 255, 255, 200);
-
-  if(gap <= 0) {
-    str = "N/A";
-  }
-  else if(gap == autoTrGap) {
-    str = "AUTO";
-    textColor = QColor(120, 255, 120, 200);
-  }
-  else {
-    str.sprintf("%d", (int)gap);
-    textColor = QColor(120, 255, 120, 200);
-    textSize = 70.f;
-  }
-
-  p.setFont(InterFont(35, QFont::Bold));
-  drawText(p, x, y-20, "GAP", 200);
-
-  p.setFont(InterFont(textSize, QFont::Bold));
-  drawTextWithColor(p, x, y+50, str, textColor);
-
-  // brake
-  x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * 3;
-  bool brake_valid = car_state.getBrakeLights();
-  float img_alpha = brake_valid ? 1.0f : 0.15f;
-  float bg_alpha = brake_valid ? 0.3f : 0.1f;
-  drawIcon(p, QPoint(x, y), ic_brake, QColor(0, 0, 0, (255 * bg_alpha)), img_alpha);
-
-  // auto hold
-  int autohold = car_state.getAutoHold();
-  if(autohold >= 0) {
-    x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * 4;
-    img_alpha = autohold > 0 ? 1.0f : 0.15f;
-    bg_alpha = autohold > 0 ? 0.3f : 0.1f;
-    drawIcon(p, QPoint(x, y), autohold > 1 ? ic_autohold_warning : ic_autohold_active,
-            QColor(0, 0, 0, (255 * bg_alpha)), img_alpha);
-  }
-
-  p.restore();
-}
-
 void AnnotatedCameraWidget::drawSpeed(QPainter &p) {
   p.save();
   UIState *s = uiState();
@@ -1325,91 +1217,6 @@ void AnnotatedCameraWidget::drawDebugText(QPainter &p) {
   p.drawText(rect, Qt::AlignLeft, QString::fromStdString(car_control.getDebugText().cStr()));
 
   p.restore();
-
-  /*p.save();
-  const SubMaster &sm = *(uiState()->sm);
-  QString str, temp;
-
-  int y = 80;
-  const int height = 60;
-
-  const int text_x = width()/2 + 250;
-
-  auto controls_state = sm["controlsState"].getControlsState();
-  auto car_control = sm["carControl"].getCarControl();
-  auto car_state = sm["carState"].getCarState();
-
-  float applyAccel = controls_state.getApplyAccel();
-
-  float aReqValue = controls_state.getAReqValue();
-  float aReqValueMin = controls_state.getAReqValueMin();
-  float aReqValueMax = controls_state.getAReqValueMax();
-
-  float vEgo = car_state.getVEgo();
-  float vEgoRaw = car_state.getVEgoRaw();
-  int longControlState = (int)controls_state.getLongControlState();
-  float vPid = controls_state.getVPid();
-  float upAccelCmd = controls_state.getUpAccelCmd();
-  float uiAccelCmd = controls_state.getUiAccelCmd();
-  float ufAccelCmd = controls_state.getUfAccelCmd();
-  float accel = car_control.getActuators().getAccel();
-
-  const char* long_state[] = {"off", "pid", "stopping", "starting"};
-
-  p.setFont(InterFont(35, QFont::Normal));
-  p.setPen(QColor(255, 255, 255, 200));
-  p.setRenderHint(QPainter::TextAntialiasing);
-
-  str.sprintf("State: %s\n", long_state[longControlState]);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("vEgo: %.2f/%.2f\n", vEgo*3.6f, vEgoRaw*3.6f);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("vPid: %.2f/%.2f\n", vPid, vPid*3.6f);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("P: %.3f\n", upAccelCmd);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("I: %.3f\n", uiAccelCmd);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("F: %.3f\n", ufAccelCmd);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("Accel: %.3f\n", accel);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("Apply: %.3f, Stock: %.3f\n", applyAccel, aReqValue);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("%.3f (%.3f/%.3f)\n", aReqValue, aReqValueMin, aReqValueMax);
-  p.drawText(text_x, y, str);
-
-  y += height;
-  str.sprintf("aEgo: %.3f, %.3f\n", car_state.getAEgo(), car_state.getABasis());
-  p.drawText(text_x, y, str);
-
-  auto lead_radar = sm["radarState"].getRadarState().getLeadOne();
-  auto lead_one = sm["modelV2"].getModelV2().getLeadsV3()[0];
-
-  float radar_dist = lead_radar.getStatus() && lead_radar.getRadar() ? lead_radar.getDRel() : 0;
-  float vision_dist = lead_one.getProb() > .5 ? (lead_one.getX()[0] - 1.5) : 0;
-
-  y += height;
-  str.sprintf("Lead: %.1f/%.1f/%.1f\n", radar_dist, vision_dist, (radar_dist - vision_dist));
-  p.drawText(text_x, y, str);
-
-  p.restore();*/
 }
 
 void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s) {
@@ -1418,7 +1225,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.save();
 
   // base icon
-  int x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50);
+  int x = radius / 2 + (UI_BORDER_SIZE * 2); //+ (radius + 50);
   int y = rect().bottom() - UI_FOOTER_HEIGHT / 2 - 10;
 
   float opacity = dmActive ? 0.65f : 0.15f;
@@ -1451,6 +1258,125 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.drawArc(QRectF(x - arc_l / 2, std::fmin(y + delta_y, y), arc_l, fabs(delta_y)), (scene.driver_pose_sins[0]>0 ? 0 : 180) * 16, 180 * 16);
 
   painter.restore();
+}
+
+static const QColor get_tpms_color(float tpms) {
+    if(tpms < 5 || tpms > 60) // N/A
+        return QColor(255, 255, 255, 220);
+    if(tpms < 31)
+        return QColor(255, 90, 90, 220);
+    return QColor(255, 255, 255, 220);
+}
+
+static const QString get_tpms_text(float tpms) {
+    if(tpms < 5 || tpms > 60)
+        return "";
+
+    char str[32];
+    snprintf(str, sizeof(str), "%.0f", round(tpms));
+    return QString(str);
+}
+
+void AnnotatedCameraWidget::drawBottomIcons(QPainter &p) {
+  p.save();
+  const SubMaster &sm = *(uiState()->sm);
+  const auto car_state = sm["carState"].getCarState();
+  const auto car_control = sm["carControl"].getCarControl();
+  const auto car_params = (*uiState()->sm)["carParams"].getCarParams();
+  const auto tpms = car_state.getTpms();
+
+  int n = 1;
+
+  // tpms
+  if(tpms.getEnabled())
+  {
+    const int w = 58;
+    const int h = 126;
+    const int x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * n - w/2;
+    const int y = height() - h - 85;
+
+    const float fl = tpms.getFl();
+    const float fr = tpms.getFr();
+    const float rl = tpms.getRl();
+    const float rr = tpms.getRr();
+
+    p.setOpacity(0.8);
+    p.drawPixmap(x, y, w, h, ic_tire_pressure);
+
+    p.setFont(InterFont(38, QFont::Bold));
+    QFontMetrics fm(p.font());
+    QRect rcFont = fm.boundingRect("9");
+
+    int center_x = x + 3;
+    int center_y = y + h/2;
+    const int marginX = (int)(rcFont.width() * 2.7f);
+    const int marginY = (int)((h/2 - rcFont.height()) * 0.7f);
+
+    drawText2(p, center_x-marginX, center_y-marginY-rcFont.height(), Qt::AlignRight, get_tpms_text(fl), get_tpms_color(fl));
+    drawText2(p, center_x+marginX, center_y-marginY-rcFont.height(), Qt::AlignLeft, get_tpms_text(fr), get_tpms_color(fr));
+    drawText2(p, center_x-marginX, center_y+marginY, Qt::AlignRight, get_tpms_text(rl), get_tpms_color(rl));
+    drawText2(p, center_x+marginX, center_y+marginY, Qt::AlignLeft, get_tpms_text(rr), get_tpms_color(rr));
+
+    n++;
+  }
+
+  int x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * n;
+  const int y = rect().bottom() - UI_FOOTER_HEIGHT / 2 - 10;
+
+  // cruise gap
+  int gap = car_state.getCruiseState().getGapAdjust();
+  int autoTrGap = car_control.getAutoTrGap();
+
+  p.setPen(Qt::NoPen);
+  p.setBrush(QBrush(QColor(0, 0, 0, 255 * .1f)));
+  p.drawEllipse(x - radius / 2, y - radius / 2, radius, radius);
+
+  QString str;
+  float textSize = 50.f;
+  QColor textColor = QColor(255, 255, 255, 200);
+
+  if(gap <= 0) {
+    str = "N/A";
+  }
+  else if(gap == autoTrGap) {
+    str = "AUTO";
+    textColor = QColor(120, 255, 120, 200);
+  }
+  else {
+    str.sprintf("%d", (int)gap);
+    textColor = QColor(120, 255, 120, 200);
+    textSize = 70.f;
+  }
+
+  p.setFont(InterFont(35, QFont::Bold));
+  drawText(p, x, y-20, "GAP", 200);
+
+  p.setFont(InterFont(textSize, QFont::Bold));
+  drawTextWithColor(p, x, y+50, str, textColor);
+  n++;
+
+  // brake
+  x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * n;
+  bool brake_valid = car_state.getBrakeLights();
+  float img_alpha = brake_valid ? 1.0f : 0.15f;
+  float bg_alpha = brake_valid ? 0.3f : 0.1f;
+  drawIcon(p, QPoint(x, y), ic_brake, QColor(0, 0, 0, (255 * bg_alpha)), img_alpha);
+  n++;
+
+  // auto hold
+  if(car_params.getHasAutoHold()) {
+    int autohold = car_state.getAutoHold();
+    if(autohold >= 0) {
+      x = radius / 2 + (UI_BORDER_SIZE * 2) + (radius + 50) * n;
+      img_alpha = autohold > 0 ? 1.0f : 0.15f;
+      bg_alpha = autohold > 0 ? 0.3f : 0.1f;
+      drawIcon(p, QPoint(x, y), autohold > 1 ? ic_autohold_warning : ic_autohold_active,
+              QColor(0, 0, 0, (255 * bg_alpha)), img_alpha);
+    }
+    n++;
+  }
+
+  p.restore();
 }
 
 void AnnotatedCameraWidget::drawMisc(QPainter &p) {

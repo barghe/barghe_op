@@ -232,10 +232,11 @@ struct CarState {
   aReqValue @52 :Float32;
 
   struct Tpms {
-    fl @0 :Float32;
-    fr @1 :Float32;
-    rl @2 :Float32;
-    rr @3 :Float32;
+    enabled @0 :Bool;
+    fl @1 :Float32;
+    fr @2 :Float32;
+    rl @3 :Float32;
+    rr @4 :Float32;
   }
 
   struct WheelSpeeds {
