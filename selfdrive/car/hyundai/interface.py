@@ -9,7 +9,7 @@ from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CANFD
                                          UNSUPPORTED_LONGITUDINAL_CAR, Buttons, CANFD_HDA2_CAR, CANFD_HDA2_ALT_GEARS
 from openpilot.selfdrive.car.hyundai.radar_interface import RADAR_START_ADDR
 from openpilot.selfdrive.car import create_button_events, get_safety_config
-from openpilot.selfdrive.car.interfaces import CarInterfaceBase
+from openpilot.selfdrive.car.interfaces import CarInterfaceBase, ACCEL_MIN, ACCEL_MAX
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.controls.neokii.cruise_state_manager import is_radar_point
 from openpilot.common.params import Params
@@ -23,6 +23,13 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
 
 
 class CarInterface(CarInterfaceBase):
+  @staticmethod
+  def get_pid_accel_limits(CP, current_speed, cruise_speed):
+    v_current_kph = current_speed * CV.MS_TO_KPH
+    gas_max_bp = [10., 20., 50., 70., 130., 150.]
+    gas_max_v = [ACCEL_MAX, 1.5, 1.0, 0.6, 0.2, 0.1]
+    return ACCEL_MIN, interp(v_current_kph, gas_max_bp, gas_max_v)
+  
   @staticmethod
   def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "hyundai"
@@ -272,7 +279,7 @@ class CarInterface(CarInterfaceBase):
                                                (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR))
     else:
       ret.longitudinalTuning.kpBP = [0., 5. * CV.KPH_TO_MS, 10. * CV.KPH_TO_MS, 30. * CV.KPH_TO_MS, 130. * CV.KPH_TO_MS]
-      ret.longitudinalTuning.kpV = [1.2, 1.0, 0.95, 0.8, 0.5]
+      ret.longitudinalTuning.kpV = [1.2, 1.0, 0.95, 0.8, 0.25]
       ret.longitudinalTuning.kiBP = [0., 130. * CV.KPH_TO_MS]
       ret.longitudinalTuning.kiV = [0.1, 0.05]
       ret.stoppingDecelRate = 0.3
