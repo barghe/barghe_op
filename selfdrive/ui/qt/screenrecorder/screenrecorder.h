@@ -31,9 +31,6 @@ private:
   QColor recording_color;
   int frame;
 
-  QSoundEffect soundStart;
-  QSoundEffect soundStop;
-
   void applyColor();
 
   std::unique_ptr<OmxEncoder> encoder;
@@ -48,8 +45,8 @@ private:
   void closeEncoder();
 
 public:
-    void start(bool sound);
-    void stop(bool sound);
+    void start();
+    void stop();
     void toggle();
     void update_screen();
 

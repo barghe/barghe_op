@@ -519,6 +519,7 @@ struct CarParams {
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
   dashcamOnly @41: Bool;
+  passive @73: Bool;   # is openpilot in control?
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
 
@@ -724,11 +725,11 @@ struct CarParams {
   maxSteeringAngleDegDEPRECATED @54 :Float32;
 
 
-  sccBus @73: Int8;
-  hasAutoHold @74 :Bool;
-  hasScc13 @75 :Bool;
-  hasScc14 @76 :Bool;
-  hasEms @77 :Bool;
-  hasLfaHda @78 :Bool;
-  hasNav @79 :Bool;
+  sccBus @74: Int8;
+  hasAutoHold @75 :Bool;
+  hasScc13 @76 :Bool;
+  hasScc14 @77 :Bool;
+  hasEms @78 :Bool;
+  hasLfaHda @79 :Bool;
+  hasNav @80 :Bool;
 }

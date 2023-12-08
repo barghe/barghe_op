@@ -34,7 +34,7 @@ ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue
   QObject::connect(this, &QPushButton::clicked, [=]() { toggle(); });
   QObject::connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
     if(offroad) {
-      stop(false);
+      stop();
     }
   });
 
@@ -50,16 +50,10 @@ ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue
   rgb_buffer = std::make_unique<uint8_t[]>(src_width*src_height*4);
   rgb_scale_buffer = std::make_unique<uint8_t[]>(dst_width*dst_height*4);
   encoder = std::make_unique<OmxEncoder>(path.c_str(), dst_width, dst_height, UI_FREQ, 2*1024*1024, false, false);
-
-  soundStart.setSource(QUrl::fromLocalFile("../assets/sounds/start_record.wav"));
-  soundStop.setSource(QUrl::fromLocalFile("../assets/sounds/stop_record.wav"));
-
-  soundStart.setVolume(0.5f);
-  soundStop.setVolume(0.5f);
 }
 
 ScreenRecoder::~ScreenRecoder() {
-  stop(false);
+  stop();
 }
 
 void ScreenRecoder::applyColor() {
@@ -106,12 +100,12 @@ void ScreenRecoder::closeEncoder() {
 void ScreenRecoder::toggle() {
 
   if(!recording)
-      start(true);
+      start();
   else
-      stop(true);
+      stop();
 }
 
-void ScreenRecoder::start(bool sound) {
+void ScreenRecoder::start() {
 
   if(recording)
     return;
@@ -136,9 +130,6 @@ void ScreenRecoder::start(bool sound) {
   update();
 
   started = milliseconds();
-
-  if(sound)
-      soundStart.play();
 }
 
 void ScreenRecoder::encoding_thread_func() {
@@ -160,19 +151,15 @@ void ScreenRecoder::encoding_thread_func() {
   }
 }
 
-void ScreenRecoder::stop(bool sound) {
-
+void ScreenRecoder::stop() {
   if(recording) {
     recording = false;
     update();
 
-  closeEncoder();
-  image_queue.clear();
-  if(encoding_thread.joinable())
-    encoding_thread.join();
-
-  if(sound)
-      soundStop.play();
+    closeEncoder();
+    image_queue.clear();
+    if(encoding_thread.joinable())
+      encoding_thread.join();
   }
 }
 
@@ -181,8 +168,8 @@ void ScreenRecoder::update_screen() {
   if(recording) {
 
     if(milliseconds() - started > 1000*60*3) {
-      stop(false);
-      start(false);
+      stop();
+      start();
       return;
     }
 

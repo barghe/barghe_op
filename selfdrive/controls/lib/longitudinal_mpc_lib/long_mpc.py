@@ -4,13 +4,13 @@ import time
 import numpy as np
 from cereal import log
 from openpilot.common.numpy_fast import clip, interp
-from openpilot.selfdrive.controls.ntune import ntune_common_get
-from openpilot.system.swaglog import cloudlog
+from openpilot.common.swaglog import cloudlog
 # WARNING: imports outside of constants will not trigger a rebuild
 from openpilot.selfdrive.modeld.constants import index_function
 from openpilot.selfdrive.car.interfaces import ACCEL_MIN
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
 from openpilot.common.conversions import Conversions as CV
+from openpilot.selfdrive.controls.ntune import ntune_common_get
 
 if __name__ == '__main__':  # generating code
   from openpilot.third_party.acados.acados_template import AcadosModel, AcadosOcp, AcadosOcpSolver
@@ -383,6 +383,7 @@ class LongitudinalMpc:
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
       self.params[:,5] = LEAD_DANGER_FACTOR
+
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
       v_lower = v_ego + (T_IDXS * self.cruise_min_a * 1.05)
