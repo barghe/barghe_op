@@ -38,7 +38,7 @@ class NaviRoute():
     route_server.serve_forever()
 
   def send_route(self):
-    msg = messaging.new_message('navRoute')
+    msg = messaging.new_message('navRoute', valid=True)
     if self.last_routes is not None:
       msg.navRoute.coordinates = self.last_routes
     else:
@@ -51,7 +51,7 @@ class NaviRoute():
     self.send_route()
 
   def dispatch_instruction(self, json):
-    msg = messaging.new_message('navInstruction')
+    msg = messaging.new_message('navInstruction', valid=True)
     instruction = msg.navInstruction
 
     if json is not None:
