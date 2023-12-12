@@ -258,6 +258,8 @@ class RadarD:
     if len(leads_v3) > 1:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, low_speed_override=False)
+      if not self.radar_state.leadTwo.status and leads_v3[1].prob > .5:
+        self.radar_state.leadTwo = get_RadarState_from_vision(leads_v3[1], self.v_ego, model_v_ego)
 
   def publish(self, pm: messaging.PubMaster, lag_ms: float):
     assert self.radar_state is not None

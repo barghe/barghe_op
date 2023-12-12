@@ -453,7 +453,6 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   SubMaster &sm = *(s->sm);
   const double start_draw_t = millis_since_boot();
   const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
-  const cereal::RadarState::Reader &radar_state = sm["radarState"].getRadarState();
 
   QPainter p(this);
 
@@ -504,13 +503,8 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
   }
 
-  if (s->worldObjectsVisible()) {
-    if (sm.rcv_frame("modelV2") > s->scene.started_frame) {
-      update_model(s, model, sm["uiPlan"].getUiPlan());
-      if (sm.rcv_frame("radarState") > s->scene.started_frame) {
-        update_leads(s, radar_state, model.getPosition());
-      }
-    }
+  if (s->scene.world_objects_visible) {
+    update_model(s, model, sm["uiPlan"].getUiPlan());
     drawHud(p, model);
 
     // DMoji
@@ -588,17 +582,16 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   UIState *s = uiState();
 
   const SubMaster &sm = *(s->sm);
-  const cereal::RadarState::Reader &radar_state = sm["radarState"].getRadarState();
-
   drawLaneLines(p, s);
 
-  
+  auto radar_state = sm["radarState"].getRadarState();
+  update_leads(s, radar_state, model.getPosition());
   auto lead_one = radar_state.getLeadOne();
   auto lead_two = radar_state.getLeadTwo();
   if (lead_one.getStatus()) {
     drawLead(p, lead_one, s->scene.lead_vertices[0], s->scene.lead_radar[0]);
   }
-  if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
+  if (lead_two.getStatus() /*&& (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)*/) {
     drawLead(p, lead_two, s->scene.lead_vertices[1], s->scene.lead_radar[1]);
   }
 

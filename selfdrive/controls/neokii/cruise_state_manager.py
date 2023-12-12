@@ -4,7 +4,7 @@ from typing import Dict
 from cereal import car
 from openpilot.common.numpy_fast import clip
 from openpilot.common.conversions import Conversions as CV
-from openpilot.common.params import Params, put_nonblocking
+from openpilot.common.params import Params
 from openpilot.selfdrive.car.hyundai.values import CANFD_CAR
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, V_CRUISE_ENABLE_MIN
 
@@ -44,11 +44,12 @@ class CruiseStateManager:
     return cls.__instance
 
   def __init__(self):
+    self.params = Params()
 
     self.available = False
     self.enabled = False
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
-    gap = Params().get('SccGapAdjust')
+    gap = self.params.get('SccGapAdjust')
     self.gapAdjust = int(gap) if gap is not None else 4
     if self.gapAdjust < 1 or self.gapAdjust > 4:
       self.gapAdjust = 4
@@ -65,8 +66,8 @@ class CruiseStateManager:
 
     self.prev_brake_pressed = False
 
-    self.is_metric = Params().get_bool('IsMetric')
-    self.cruise_state_control = Params().get_bool('CruiseStateControl')
+    self.is_metric = self.params.get_bool('IsMetric')
+    self.cruise_state_control = self.params.get_bool('CruiseStateControl')
 
   def is_resume_spam_allowed(self, CP):
     if is_radar_point(CP):
@@ -180,7 +181,7 @@ class CruiseStateManager:
       self.gapAdjust -= 1
       if self.gapAdjust < 1:
         self.gapAdjust = 4
-      put_nonblocking("SccGapAdjust", str(self.gapAdjust))
+      self.params.put_nonblocking("SccGapAdjust", str(self.gapAdjust))
 
     if btn == ButtonType.cancel:
       self.enabled = False

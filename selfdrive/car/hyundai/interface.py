@@ -15,11 +15,23 @@ from openpilot.selfdrive.controls.neokii.cruise_state_manager import is_radar_po
 from openpilot.common.params import Params
 
 Ecu = car.CarParams.Ecu
+SafetyModel = car.CarParams.SafetyModel
 ButtonType = car.CarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
 ENABLE_BUTTONS = (Buttons.RES_ACCEL, Buttons.SET_DECEL, Buttons.CANCEL)
 BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: ButtonType.decelCruise,
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
+
+
+def set_safety_config_hyundai(candidate, CAN, can_fd=False):
+  platform = SafetyModel.hyundaiCanfd if can_fd else \
+             SafetyModel.hyundaiLegacy if candidate in LEGACY_SAFETY_MODE_CAR else \
+             SafetyModel.hyundai
+  cfgs = [get_safety_config(platform), ]
+  if CAN.ECAN >= 4:
+    cfgs.insert(0, get_safety_config(SafetyModel.noOutput))
+
+  return cfgs
 
 
 class CarInterface(CarInterfaceBase):
@@ -29,7 +41,7 @@ class CarInterface(CarInterfaceBase):
     gas_max_bp = [10., 20., 50., 70., 130., 150.]
     gas_max_v = [ACCEL_MAX, 1.5, 1.0, 0.6, 0.2, 0.1]
     return ACCEL_MIN, interp(v_current_kph, gas_max_bp, gas_max_v)
-  
+
   @staticmethod
   def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "hyundai"
@@ -47,7 +59,6 @@ class CarInterface(CarInterfaceBase):
     if candidate in CANFD_CAR:
       # detect HDA2 with ADAS Driving ECU
       if hda2:
-        ret.flags |= HyundaiFlags.CANFD_HDA2.value
         if 0x110 in fingerprint[CAN.CAM]:
           ret.flags |= HyundaiFlags.CANFD_HDA2_ALT_STEERING.value
         if candidate in CANFD_HDA2_ALT_GEARS:
@@ -163,13 +174,17 @@ class CarInterface(CarInterfaceBase):
       ret.mass = 1690.  # from https://www.hyundai-motor.com.tw/clicktobuy/custin#spec_0
       ret.wheelbase = 3.055
       ret.steerRatio = 17.0  # from learner
+    elif candidate == CAR.STARIA_4TH_GEN:
+      ret.mass = 2205.
+      ret.wheelbase = 3.273
+      ret.steerRatio = 11.94  # https://www.hyundai.com/content/dam/hyundai/au/en/models/staria-load/premium-pip-update-2023/spec-sheet/STARIA_Load_Spec-Table_March_2023_v3.1.pdf
 
     # Kia
     elif candidate == CAR.KIA_SORENTO:
       ret.mass = 1985.
       ret.wheelbase = 2.78
       ret.steerRatio = 14.4 * 1.1   # 10% higher at the center seems reasonable
-    elif candidate in (CAR.KIA_NIRO_EV, CAR.KIA_NIRO_EV_2ND_GEN, CAR.KIA_NIRO_PHEV, CAR.KIA_NIRO_HEV_2021, CAR.KIA_NIRO_HEV_2ND_GEN):
+    elif candidate in (CAR.KIA_NIRO_EV, CAR.KIA_NIRO_EV_2ND_GEN, CAR.KIA_NIRO_PHEV, CAR.KIA_NIRO_HEV_2021, CAR.KIA_NIRO_HEV_2ND_GEN, CAR.KIA_NIRO_PHEV_2022):
       ret.mass = 3543. * CV.LB_TO_KG  # average of all the cars
       ret.wheelbase = 2.7
       ret.steerRatio = 13.6  # average of all the cars
@@ -275,8 +290,7 @@ class CarInterface(CarInterfaceBase):
     if candidate in CANFD_CAR:
       ret.longitudinalTuning.kpV = [0.1]
       ret.longitudinalTuning.kiV = [0.0]
-      ret.experimentalLongitudinalAvailable = (candidate in (HYBRID_CAR | EV_CAR) and candidate not in
-                                               (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR))
+      ret.experimentalLongitudinalAvailable = candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
     else:
       ret.longitudinalTuning.kpBP = [0., 5. * CV.KPH_TO_MS, 10. * CV.KPH_TO_MS, 30. * CV.KPH_TO_MS, 130. * CV.KPH_TO_MS]
       ret.longitudinalTuning.kpV = [1.2, 1.0, 0.95, 0.8, 0.25]
@@ -307,19 +321,18 @@ class CarInterface(CarInterfaceBase):
       ret.enableBsm = 0x58b in fingerprint[0]
 
     # *** panda safety config ***
-    if candidate in CANFD_CAR:
-      cfgs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCanfd), ]
-      if CAN.ECAN >= 4:
-        cfgs.insert(0, get_safety_config(car.CarParams.SafetyModel.noOutput))
-      ret.safetyConfigs = cfgs
+    ret.safetyConfigs = set_safety_config_hyundai(candidate, CAN, can_fd=(candidate in CANFD_CAR))
 
-      if ret.flags & HyundaiFlags.CANFD_HDA2:
-        ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_CANFD_HDA2
-        if ret.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING:
-          ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_CANFD_HDA2_ALT_STEERING
+    if hda2:
+      ret.flags |= HyundaiFlags.CANFD_HDA2.value
+      ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_CANFD_HDA2
+
+    if candidate in CANFD_CAR:
+      if hda2 and ret.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING:
+        ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_CANFD_HDA2_ALT_STEERING
       if ret.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
         ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_CANFD_ALT_BUTTONS
-      if ret.flags & HyundaiFlags.CANFD_CAMERA_SCC:
+      if ret.flags & HyundaiFlags.CANFD_CAMERA_SCC or candidate in CAMERA_SCC_CAR:
         ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_CAMERA_SCC
 
       ret.sccBus = 0
