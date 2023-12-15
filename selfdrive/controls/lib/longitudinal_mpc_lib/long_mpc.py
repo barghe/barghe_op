@@ -9,7 +9,6 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.modeld.constants import index_function
 from openpilot.selfdrive.car.interfaces import ACCEL_MIN
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
-from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.controls.ntune import ntune_common_get
 
 if __name__ == '__main__':  # generating code
@@ -49,9 +48,6 @@ ACADOS_SOLVER_TYPE = 'SQP_RTI'
 CRUISE_GAP_BP = [1., 2., 3., 4.]
 CRUISE_GAP_V = [1.0, 1.2, 1.5, 1.8]
 CRUISE_GAP_E2E_V = [1.1, 1.3, 1.6, 1.8]
-
-DIFF_RADAR_VISION = 1.0
-
 
 # Fewer timestamps don't hurt performance and lead to
 # much better convergence of the MPC with low iterations
@@ -296,9 +292,9 @@ class LongitudinalMpc:
       #cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
 
       if v_ego < 0.1 or a_desired > 0.:
-        x_cost = interp(v_ego, [1., 6.], [0.1, X_EGO_COST])
-        v_cost = interp(v_ego, [1., 6.], [0.2, V_EGO_COST])
-        a_cost = interp(v_ego, [1., 6.], [5.0, A_EGO_COST])
+        x_cost = interp(v_ego, [1., 10.], [0.1, X_EGO_COST])
+        v_cost = interp(v_ego, [1., 10.], [0.2, V_EGO_COST])
+        a_cost = interp(v_ego, [1., 10.], [5.0, A_EGO_COST])
       else:
         x_cost, v_cost, a_cost = 0., 0., 0.
 
@@ -331,7 +327,7 @@ class LongitudinalMpc:
   def process_lead(self, lead):
     v_ego = self.x0[1]
     if lead is not None and lead.status:
-      x_lead = lead.dRel if lead.radar else max(lead.dRel-DIFF_RADAR_VISION, 0.)
+      x_lead = lead.dRel
       v_lead = lead.vLeadK
       a_lead = lead.aLeadK * ntune_common_get('longLeadSensitivity')
       a_lead_tau = lead.aLeadTau

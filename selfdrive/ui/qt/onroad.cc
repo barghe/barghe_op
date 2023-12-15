@@ -588,11 +588,11 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   update_leads(s, radar_state, model.getPosition());
   auto lead_one = radar_state.getLeadOne();
   auto lead_two = radar_state.getLeadTwo();
+  if (lead_two.getStatus()) {
+    drawLead(p, lead_two, s->scene.lead_vertices[1], s->scene.lead_radar[1]);
+  }
   if (lead_one.getStatus()) {
     drawLead(p, lead_one, s->scene.lead_vertices[0], s->scene.lead_radar[0]);
-  }
-  if (lead_two.getStatus() /*&& (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)*/) {
-    drawLead(p, lead_two, s->scene.lead_vertices[1], s->scene.lead_radar[1]);
   }
 
   drawMaxSpeed(p);
