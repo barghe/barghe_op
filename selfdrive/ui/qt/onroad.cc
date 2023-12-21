@@ -10,6 +10,7 @@
 #include <QSound>
 #include <QMouseEvent>
 
+#include "common/swaglog.h"
 #include "common/timing.h"
 #include "selfdrive/ui/qt/util.h"
 #ifdef ENABLE_MAPS
