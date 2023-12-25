@@ -24,7 +24,7 @@ SPEED, ACCEL = 0, 1     # Kalman filter states enum
 V_EGO_STATIONARY = 4.   # no stationary object flag below this speed
 
 RADAR_TO_CENTER = 2.7   # (deprecated) RADAR is ~ 2.7m ahead from center of car
-RADAR_TO_CAMERA = 2.0 #1.52  # RADAR is ~ 1.5m ahead from center of mesh frame
+RADAR_TO_CAMERA = 1.52  # RADAR is ~ 1.5m ahead from center of mesh frame
 
 
 class KalmanParams:
@@ -258,9 +258,12 @@ class RadarD:
     if len(leads_v3) > 1:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, low_speed_override=False)
-      if len(self.tracks) == 1 and self.radar_state.leadOne.status and self.radar_state.leadOne.radar:
-        if leads_v3[1].prob > .5:
-          self.radar_state.leadTwo = get_RadarState_from_vision(leads_v3[1], self.v_ego, model_v_ego)
+      if self.radar_state.leadOne.status:
+        if self.radar_state.leadOne.radar:
+          if len(self.tracks) == 1 and leads_v3[1].prob > .5:
+            self.radar_state.leadTwo = get_RadarState_from_vision(leads_v3[1], self.v_ego, model_v_ego)
+        else:
+          self.radar_state.leadOne.dRel -= 0.5
 
   def publish(self, pm: messaging.PubMaster, lag_ms: float):
     assert self.radar_state is not None
