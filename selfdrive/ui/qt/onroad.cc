@@ -47,12 +47,12 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   split->addWidget(nvg);
 
   if (getenv("DUAL_CAMERA_VIEW")) {
-    CameraWidget *arCam = new CameraWidget("camerad", VISION_STREAM_ROAD, true, this);
+    CameraWidget *arCam = new CameraView("camerad", VISION_STREAM_ROAD, true, this);
     split->insertWidget(0, arCam);
   }
 
   if (getenv("MAP_RENDER_VIEW")) {
-    CameraWidget *map_render = new CameraWidget("navd", VISION_STREAM_MAP, false, this);
+    CameraWidget *map_render = new CameraView("navd", VISION_STREAM_MAP, false, this);
     split->insertWidget(0, map_render);
   }
 
@@ -125,6 +125,7 @@ void OnroadWindow::offroadTransition(bool offroad) {
 #endif
 
   alerts->updateAlert({});
+  nvg->disconnectVipc();
 }
 
 void OnroadWindow::primeChanged(bool prime) {
@@ -333,6 +334,8 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
     map_settings_btn->setVisible(!hideBottomIcons);
     main_layout->setAlignment(map_settings_btn, (rightHandDM ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignBottom);
   }
+
+  update();
 }
 
 void AnnotatedCameraWidget::updateFrameMat() {
@@ -457,52 +460,38 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
   QPainter p(this);
 
-  // draw camera frame
-  {
-    std::lock_guard lk(frame_lock);
-
-    if (frames.empty()) {
-      if (skip_frame_count > 0) {
-        skip_frame_count--;
-        qDebug() << "skipping frame, not ready";
-        return;
-      }
-    } else {
-      // skip drawing up to this many frames if we're
-      // missing camera frames. this smooths out the
-      // transitions from the narrow and wide cameras
-      skip_frame_count = 5;
+  // Wide or narrow cam dependent on speed
+  bool has_wide_cam = available_streams.count(VISION_STREAM_WIDE_ROAD);
+  if (has_wide_cam) {
+    float v_ego = sm["carState"].getCarState().getVEgo();
+    if ((v_ego < 10) || available_streams.size() == 1) {
+      wide_cam_requested = true;
+    } else if (v_ego > 15) {
+      wide_cam_requested = false;
     }
-
-    // Wide or narrow cam dependent on speed
-    bool has_wide_cam = available_streams.count(VISION_STREAM_WIDE_ROAD);
-    if (has_wide_cam) {
-      float v_ego = sm["carState"].getCarState().getVEgo();
-      if ((v_ego < 10) || available_streams.size() == 1) {
-        wide_cam_requested = true;
-      } else if (v_ego > 15) {
-        wide_cam_requested = false;
-      }
-      wide_cam_requested = wide_cam_requested && sm["controlsState"].getControlsState().getExperimentalMode();
-      // for replay of old routes, never go to widecam
-      wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
-    }
-    CameraWidget::setStreamType(wide_cam_requested ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
-
-    s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
-    if (s->scene.calibration_valid) {
-      auto calib = s->scene.wide_cam ? s->scene.view_from_wide_calib : s->scene.view_from_calib;
-      CameraWidget::updateCalibration(calib);
-    } else {
-      CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
-    }
-
-    p.beginNativePainting();
-    CameraWidget::setFrameId(model.getFrameId());
-    CameraWidget::paintGL();
-    p.endNativePainting();
-
+    wide_cam_requested = wide_cam_requested && sm["controlsState"].getControlsState().getExperimentalMode();
+    // for replay of old routes, never go to widecam
+    wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
   }
+  CameraWidget::setStreamType(wide_cam_requested ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
+
+  s->scene.wide_cam = CameraWidget::streamType() == VISION_STREAM_WIDE_ROAD;
+  if (s->scene.calibration_valid) {
+    auto calib = s->scene.wide_cam ? s->scene.view_from_wide_calib : s->scene.view_from_calib;
+    CameraWidget::updateCalibration(calib);
+  } else {
+    CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
+  }
+
+  if (!CameraWidget::receiveFrame(sm["uiPlan"].getUiPlan().getFrameId())) {
+    qDebug() << "skipping frame, not ready";
+    return;
+  }
+
+  p.beginNativePainting();
+  //CameraWidget::setFrameId(model.getFrameId());
+  CameraWidget::paintGL();
+  p.endNativePainting();
 
   if (s->scene.world_objects_visible) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
