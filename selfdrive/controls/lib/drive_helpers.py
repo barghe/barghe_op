@@ -165,12 +165,11 @@ def rate_limit(new_value, last_value, dw_step, up_step):
   return clip(new_value, last_value + dw_step, last_value + up_step)
 
 
-def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates, distances):
-  if len(psis) != CONTROL_N or len(distances) != CONTROL_N:
+def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, distances):
+  if len(psis) != CONTROL_N:
     psis = [0.0]*CONTROL_N
     curvatures = [0.0]*CONTROL_N
-    curvature_rates = [0.0]*CONTROL_N
-    distances = [0.0] * CONTROL_N
+    distances = [0.0]*CONTROL_N
   v_ego = max(MIN_SPEED, v_ego)
 
   # TODO this needs more thought, use .2s extra for now to estimate other delays
@@ -187,16 +186,12 @@ def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates, dis
   desired_curvature = 2 * average_curvature_desired - current_curvature_desired
 
   # This is the "desired rate of the setpoint" not an actual desired rate
-  desired_curvature_rate = curvature_rates[0]
   max_curvature_rate = MAX_LATERAL_JERK / (v_ego**2) # inexact calculation, check https://github.com/commaai/openpilot/pull/24755
-  safe_desired_curvature_rate = clip(desired_curvature_rate,
-                                     -max_curvature_rate,
-                                     max_curvature_rate)
   safe_desired_curvature = clip(desired_curvature,
                                 current_curvature_desired - max_curvature_rate * DT_MDL,
                                 current_curvature_desired + max_curvature_rate * DT_MDL)
 
-  return safe_desired_curvature * path_factor, safe_desired_curvature_rate * path_factor
+  return safe_desired_curvature * path_factor
 
 
 def get_friction(lateral_accel_error: float, lateral_accel_deadzone: float, friction_threshold: float,
