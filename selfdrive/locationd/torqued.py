@@ -237,7 +237,7 @@ class TorqueEstimator(ParameterEstimator):
       self.offline_friction = self.get_friction()
       self.offline_latAccelFactor = self.get_lat_accel_factor()
 
-def main():
+def main(demo=False):
   config_realtime_process([0, 1, 2, 3], 5)
 
   pm = messaging.PubMaster(['liveTorqueParameters'])
@@ -265,4 +265,8 @@ def main():
       params.put_nonblocking("LiveTorqueParameters", msg.to_bytes())
 
 if __name__ == "__main__":
-  main()
+  import argparse
+  parser = argparse.ArgumentParser(description='Process the --demo argument.')
+  parser.add_argument('--demo', action='store_true', help='A boolean for demo mode.')
+  args = parser.parse_args()
+  main(demo=args.demo)

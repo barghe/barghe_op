@@ -5,11 +5,11 @@ from common.numpy_fast import clip, interp
 from cereal import car
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN, V_CRUISE_UNSET
+from openpilot.selfdrive.controls.lib.lane_planner import TRAJECTORY_SIZE
 from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI, \
   V_CRUISE_MIN_CRUISE_STATE
 from openpilot.selfdrive.car.hyundai.values import Buttons
 from openpilot.common.params import Params
-from openpilot.selfdrive.controls.lib.lateral_planner import TRAJECTORY_SIZE
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.controls.ntune import ntune_common_get
 from openpilot.selfdrive.controls.radard import RADAR_TO_CAMERA
@@ -199,24 +199,31 @@ class SpeedController:
     return 0
 
   def cal_curve_speed(self, sm, v_ego, frame):
-    lat_plan = sm['lateralPlan']
-    if len(lat_plan.fullCurvatures) == TRAJECTORY_SIZE:
-      start = int(interp(v_ego, [10., 27.], [10, TRAJECTORY_SIZE - 10]))
-      curv = list(lat_plan.fullCurvatures)[start:min(start + 10, TRAJECTORY_SIZE)]
-      a_y_max = 2.975 - v_ego * 0.0375  # ~1.85 @ 75mph, ~2.6 @ 25mph
-      v_curvature = np.sqrt(a_y_max / np.clip(np.abs(curv), 1e-4, None))
-      model_speed = np.mean(v_curvature) * 0.85
+    if frame % 20 == 0:
+      md = sm['modelV2']
+      if len(md.position.x) == TRAJECTORY_SIZE and len(md.position.y) == TRAJECTORY_SIZE:
+        x = md.position.x
+        y = md.position.y
+        dy = np.gradient(y, x)
+        d2y = np.gradient(dy, x)
+        curv = d2y / (1 + dy ** 2) ** 1.5
 
-      if model_speed < v_ego:
-        self.curve_speed_ms = float(max(model_speed, MIN_CURVE_SPEED))
+        start = int(interp(v_ego, [10., 27.], [10, TRAJECTORY_SIZE-10]))
+        curv = curv[start:min(start+10, TRAJECTORY_SIZE)]
+        a_y_max = 2.975 - v_ego * 0.0375  # ~1.85 @ 75mph, ~2.6 @ 25mph
+        v_curvature = np.sqrt(a_y_max / np.clip(np.abs(curv), 1e-4, None))
+        model_speed = np.mean(v_curvature) * 0.85
+
+        if model_speed < v_ego:
+          self.curve_speed_ms = float(max(model_speed, MIN_CURVE_SPEED))
+        else:
+          self.curve_speed_ms = 255.
+
+        if np.isnan(self.curve_speed_ms):
+          self.curve_speed_ms = 255.
       else:
         self.curve_speed_ms = 255.
-
-      if np.isnan(self.curve_speed_ms):
-        self.curve_speed_ms = 255.
-    else:
-      self.curve_speed_ms = 255.
-
+    
   def cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
 
     override_speed = -1

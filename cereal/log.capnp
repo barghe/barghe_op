@@ -299,6 +299,29 @@ struct GpsLocationData {
   }
 }
 
+enum Desire {
+  none @0;
+  turnLeft @1;
+  turnRight @2;
+  laneChangeLeft @3;
+  laneChangeRight @4;
+  keepLeft @5;
+  keepRight @6;
+}
+
+enum LaneChangeState {
+  off @0;
+  preLaneChange @1;
+  laneChangeStarting @2;
+  laneChangeFinishing @3;
+}
+
+enum LaneChangeDirection {
+  none @0;
+  left @1;
+  right @2;
+}
+
 struct CanData {
   address @0 :UInt32;
   busTime @1 :UInt16;
@@ -880,7 +903,8 @@ struct ModelDataV2 {
   locationMonoTime @24 :UInt64;
 
   # e2e lateral planner
-  lateralPlannerSolution @25: LateralPlannerSolution;
+  lateralPlannerSolutionDEPRECATED @25: LateralPlannerSolution;
+  action @26: Action;
 
   struct LeadDataV2 {
     prob @0 :Float32; # probability that car is your lead at time t
@@ -918,6 +942,9 @@ struct ModelDataV2 {
     desireState @5 :List(Float32);
     disengagePredictions @6 :DisengagePredictions;
     hardBrakePredicted @7 :Bool;
+    laneChangeState @8 :LaneChangeState;
+    laneChangeDirection @9 :LaneChangeDirection;
+
 
     # deprecated
     brakeDisengageProbDEPRECATED @2 :Float32;
@@ -959,6 +986,9 @@ struct ModelDataV2 {
     yawRateStd @7 :List(Float32);
   }
 
+  struct Action {
+    desiredCurvature @0 :Float32;
+  }
 }
 
 struct EncodeIndex {
@@ -1090,9 +1120,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   solverExecutionTime @30 :Float32;
   solverCost @32 :Float32;
   solverState @33 :SolverState;
-
-  distances @34 :List(Float32);
-  fullCurvatures @35 :List(Float32);
 
   struct SolverState {
     x @0 :List(List(Float32));
@@ -2225,7 +2252,6 @@ struct Event {
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
     longitudinalPlan @24 :LongitudinalPlan;
-    lateralPlan @64 :LateralPlan;
     uiPlan @106 :UiPlan;
     ubloxGnss @34 :UbloxGnss;
     ubloxRaw @39 :Data;
@@ -2349,6 +2375,7 @@ struct Event {
     pandaStateDEPRECATED @12 :PandaState;
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
+    lateralPlanDEPRECATED @64 :LateralPlan;
   }
 }
 
