@@ -211,7 +211,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"MapboxToken", PERSISTENT},
     {"SupportedCars", PERSISTENT},
     {"SelectedCar", PERSISTENT},
-    //{"UseLanelines", PERSISTENT},
+    {"UseLanelines", PERSISTENT},
     {"SccOnBus2", PERSISTENT},
     {"CruiseStateControl", PERSISTENT},
     {"SccGapAdjust", PERSISTENT},

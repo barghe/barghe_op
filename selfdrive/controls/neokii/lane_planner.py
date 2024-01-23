@@ -3,11 +3,39 @@ from cereal import log
 from common.filter_simple import FirstOrderFilter
 from common.numpy_fast import interp, clip, mean
 from common.realtime import DT_MDL
+from openpilot.selfdrive.controls.ntune import ntune_common_get
+from openpilot.selfdrive.modeld.constants import ModelConstants
 
 TRAJECTORY_SIZE = 33
-
+CONTROL_C = 17
+MAX_LATERAL_JERK = 10.
 ENABLE_ZORROBYTE = True
 
+def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures):
+  if len(psis) != CONTROL_C:
+    psis = [0.0] * CONTROL_C
+    curvatures = [0.0] * CONTROL_C
+  v_ego = max(1.0, v_ego)
+
+  # TODO this needs more thought, use .2s extra for now to estimate other delays
+  delay = ntune_common_get('steerActuatorDelay') + .2
+  path_factor = ntune_common_get('pathFactor')
+
+  # MPC can plan to turn the wheel and turn back before t_delay. This means
+  # in high delay cases some corrections never even get commanded. So just use
+  # psi to calculate a simple linearization of desired curvature
+  current_curvature_desired = curvatures[0]
+  psi = interp(delay, ModelConstants.T_IDXS[:CONTROL_C], psis)
+  average_curvature_desired = psi / (v_ego * delay)
+  desired_curvature = 2 * average_curvature_desired - current_curvature_desired
+
+  # This is the "desired rate of the setpoint" not an actual desired rate
+  max_curvature_rate = MAX_LATERAL_JERK / (v_ego**2) # inexact calculation, check https://github.com/commaai/openpilot/pull/24755
+  safe_desired_curvature = clip(desired_curvature,
+                                current_curvature_desired - max_curvature_rate * DT_MDL,
+                                current_curvature_desired + max_curvature_rate * DT_MDL)
+
+  return safe_desired_curvature * path_factor
 
 class LanePlanner:
   def __init__(self,):
@@ -49,8 +77,8 @@ class LanePlanner:
 
     desire_state = md.meta.desireState
     if len(desire_state):
-      self.l_lane_change_prob = desire_state[log.LateralPlan.Desire.laneChangeLeft]
-      self.r_lane_change_prob = desire_state[log.LateralPlan.Desire.laneChangeRight]
+      self.l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
+      self.r_lane_change_prob = desire_state[log.Desire.laneChangeRight]
 
   def get_d_path(self, v_ego, path_t, path_xyz):
     # Reduce reliance on lanelines that are too far apart or

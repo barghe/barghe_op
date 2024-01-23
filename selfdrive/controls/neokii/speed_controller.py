@@ -5,11 +5,11 @@ from common.numpy_fast import clip, interp
 from cereal import car
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_ENABLE_MIN, V_CRUISE_UNSET
-from openpilot.selfdrive.controls.lib.lane_planner import TRAJECTORY_SIZE
 from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI, \
   V_CRUISE_MIN_CRUISE_STATE
 from openpilot.selfdrive.car.hyundai.values import Buttons
 from openpilot.common.params import Params
+from openpilot.selfdrive.controls.neokii.lane_planner import TRAJECTORY_SIZE
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.controls.ntune import ntune_common_get
 from openpilot.selfdrive.controls.radard import RADAR_TO_CAMERA

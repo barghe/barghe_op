@@ -28,9 +28,9 @@ from openpilot.selfdrive.controls.lib.alertmanager import AlertManager, set_offr
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from openpilot.selfdrive.controls.ntune import ntune_common_enabled, ntune_common_get
 from openpilot.selfdrive.controls.neokii.speed_controller import SpeedController
+from selfdrive.controls.neokii.lane_planner import get_lag_adjusted_curvature
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -66,6 +66,8 @@ class Controls:
     # Ensure the current branch is cached, otherwise the first iteration of controlsd lags
     self.branch = get_short_branch("")
 
+    self.lane_mode = Params().get_bool('UseLanelines')
+
     # Setup sockets
     self.pm = messaging.PubMaster(['sendcan', 'controlsState', 'carState',
                                    'carControl', 'onroadEvents', 'carParams'])
@@ -83,7 +85,7 @@ class Controls:
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
-                                   'testJoystick'] + self.camera_packets + self.sensor_packets,
+                                   'testJoystick'] + self.camera_packets + self.sensor_packets + (['lateralLanePlan'] if self.lane_mode else []),
                                   ignore_alive=ignore, ignore_avg_freq=['radarState', 'testJoystick'], ignore_valid=['testJoystick', ])
 
     if CI is None:
@@ -294,19 +296,34 @@ class Controls:
         self.events.add(EventName.calibrationInvalid)
 
     # Handle lane change
-    if self.sm['modelV2'].meta.laneChangeState == LaneChangeState.preLaneChange:
-      direction = self.sm['modelV2'].meta.laneChangeDirection
-      if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
-         (CS.rightBlindspot and direction == LaneChangeDirection.right):
-        self.events.add(EventName.laneChangeBlocked)
-      else:
-        if direction == LaneChangeDirection.left:
-          self.events.add(EventName.preLaneChangeLeft)
+    if self.lane_mode:
+      if self.sm['lateralLanePlan'].laneChangeState == LaneChangeState.preLaneChange:
+        direction = self.sm['lateralLanePlan'].laneChangeDirection
+        if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
+            (CS.rightBlindspot and direction == LaneChangeDirection.right):
+          self.events.add(EventName.laneChangeBlocked)
         else:
-          self.events.add(EventName.preLaneChangeRight)
-    elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
-                                                    LaneChangeState.laneChangeFinishing):
-      self.events.add(EventName.laneChange)
+          if direction == LaneChangeDirection.left:
+            self.events.add(EventName.preLaneChangeLeft)
+          else:
+            self.events.add(EventName.preLaneChangeRight)
+      elif self.sm['lateralLanePlan'].laneChangeState in (LaneChangeState.laneChangeStarting,
+                                                      LaneChangeState.laneChangeFinishing):
+        self.events.add(EventName.laneChange)
+    else:
+      if self.sm['modelV2'].meta.laneChangeState == LaneChangeState.preLaneChange:
+        direction = self.sm['modelV2'].meta.laneChangeDirection
+        if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
+           (CS.rightBlindspot and direction == LaneChangeDirection.right):
+          self.events.add(EventName.laneChangeBlocked)
+        else:
+          if direction == LaneChangeDirection.left:
+            self.events.add(EventName.preLaneChangeLeft)
+          else:
+            self.events.add(EventName.preLaneChangeRight)
+      elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
+                                                      LaneChangeState.laneChangeFinishing):
+        self.events.add(EventName.laneChange)
 
     for i, pandaState in enumerate(self.sm['pandaStates']):
       # All pandas must match the list of safetyConfigs, and if outside this list, must be silent or noOutput
@@ -626,7 +643,11 @@ class Controls:
       actuators.accel = self.LoC.update(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
 
       # Steering PID loop and lateral MPC
-      self.desired_curvature = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature)
+      if self.lane_mode:
+        lat_plan = self.sm['lateralLanePlan']
+        self.desired_curvature = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures)
+      else:
+        self.desired_curvature = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature)
       actuators.curvature = self.desired_curvature
       actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                                              self.steer_limited, self.desired_curvature,

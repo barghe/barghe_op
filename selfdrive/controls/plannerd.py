@@ -5,6 +5,8 @@ from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 import cereal.messaging as messaging
+from openpilot.selfdrive.controls.neokii.lateral_lane_planner import LateralLanePlanner
+
 
 def publish_ui_plan(sm, pm, longitudinal_planner):
   ui_send = messaging.new_message('uiPlan')
@@ -26,8 +28,12 @@ def plannerd_thread():
     CP = msg
   cloudlog.info("plannerd got CarParams: %s", CP.carName)
 
+  lateral_planner = None
+  if Params().get_bool('UseLanelines'):
+    lateral_planner = LateralLanePlanner(CP)
+
   longitudinal_planner = LongitudinalPlanner(CP)
-  pm = messaging.PubMaster(['longitudinalPlan', 'uiPlan'])
+  pm = messaging.PubMaster(['longitudinalPlan', 'uiPlan', 'lateralLanePlan'])
   sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'radarState', 'modelV2'],
                            poll=['radarState', 'modelV2'], ignore_avg_freq=['radarState'])
 
@@ -35,6 +41,9 @@ def plannerd_thread():
     sm.update()
 
     if sm.updated['modelV2']:
+      if lateral_planner is not None:
+        lateral_planner.update(sm)
+        lateral_planner.publish(sm, pm)
       longitudinal_planner.update(sm)
       longitudinal_planner.publish(sm, pm)
       publish_ui_plan(sm, pm, longitudinal_planner)
