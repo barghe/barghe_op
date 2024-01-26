@@ -2375,7 +2375,7 @@ struct Event {
     pandaStateDEPRECATED @12 :PandaState;
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
-    lateralLanePlan @64 :LateralPlan;
+    lateralPlanDEPRECATED @64 :LateralPlan;
   }
 }
 

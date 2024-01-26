@@ -525,12 +525,12 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
 
   // param, title, desc, icon
   std::vector<std::tuple<QString, QString, QString, QString>> toggle_defs{
-    {
+    /*{
       "UseLanelines",
       tr("Use lane lines instead of e2e"),
       "",
       "../assets/offroad/icon_openpilot.png",
-    },
+    },*/
     {
       "SccOnBus2",
       tr("SCC on BUS 2"),
