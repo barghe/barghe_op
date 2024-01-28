@@ -219,7 +219,7 @@ class CarController:
       # 5 Hz ACC options
       if self.frame % 20 == 0 and self.CP.openpilotLongitudinalControl:
         if self.CP.sccBus == 0:
-          can_sends.extend(hyundaican.create_acc_opt(self.packer))
+          can_sends.extend(hyundaican.create_acc_opt(self.packer, self.CP.flags & HyundaiFlags.USE_FCA.value))
         elif CS.scc13 is not None:
           can_sends.append(hyundaican_community.create_acc_opt(self.packer, CS))
 

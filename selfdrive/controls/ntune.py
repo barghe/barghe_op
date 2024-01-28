@@ -171,7 +171,7 @@ class nTune():
     if self.checkValue("steerActuatorDelay", 0., 0.8, 0.1):
       updated = True
 
-    if self.checkValue("pathFactor", 0.8, 1.1, 1.0):
+    if self.checkValue("pathFactor", 0.9, 1.1, 1.0):
       updated = True
 
     if self.checkValue("longLeadSensitivity", 0.5, 1.2, 0.8):
