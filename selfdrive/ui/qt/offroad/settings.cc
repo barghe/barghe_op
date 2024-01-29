@@ -561,6 +561,12 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
       "",
       "../assets/offroad/icon_shell.png",
     },
+    {
+      "DriverCameraOnReverse",
+      tr("Driver Camera On Reverse"),
+      tr("Displays the driver camera when in reverse."),
+      "../assets/img_driver_face_static.png",
+      },
   };
 
   for (auto &[param, title, desc, icon] : toggle_defs) {

@@ -154,7 +154,7 @@ void OnroadAlerts::updateAlert(const Alert &a) {
 }
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
-  if (alert.size == cereal::ControlsState::AlertSize::NONE) {
+  if (alert.size == cereal::ControlsState::AlertSize::NONE || uiState()->scene.show_driver_camera) {
     return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
@@ -470,7 +470,13 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     // for replay of old routes, never go to widecam
     wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
   }
-  CameraWidget::setStreamType(wide_cam_requested ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
+
+  if(s->scene.show_driver_camera) {
+    CameraWidget::setStreamType(VISION_STREAM_DRIVER);
+  }
+  else {
+    CameraWidget::setStreamType(wide_cam_requested ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
+  }
 
   s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
   if (s->scene.calibration_valid) {
@@ -485,7 +491,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   CameraWidget::paintGL();
   p.endNativePainting();
 
-  if (s->scene.world_objects_visible) {
+  if (s->scene.world_objects_visible && !s->scene.show_driver_camera) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
     drawHud(p, model);
 
