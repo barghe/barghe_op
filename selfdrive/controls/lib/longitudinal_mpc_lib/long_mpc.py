@@ -9,7 +9,6 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.modeld.constants import index_function
 from openpilot.selfdrive.car.interfaces import ACCEL_MIN
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
-from openpilot.selfdrive.controls.ntune import ntune_common_get
 
 if __name__ == '__main__':  # generating code
   from openpilot.third_party.acados.acados_template import AcadosModel, AcadosOcp, AcadosOcpSolver
@@ -292,9 +291,9 @@ class LongitudinalMpc:
       #cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
 
       if v_ego < 0.1 or a_desired > 0.:
-        x_cost = interp(v_ego, [1., 10.], [0.1, X_EGO_COST])
-        v_cost = interp(v_ego, [1., 10.], [0.2, V_EGO_COST])
-        a_cost = interp(v_ego, [1., 10.], [5.0, A_EGO_COST])
+        x_cost = interp(v_ego, [5., 10.], [0.1, X_EGO_COST])
+        v_cost = interp(v_ego, [5., 10.], [0.2, V_EGO_COST])
+        a_cost = interp(v_ego, [5., 10.], [5.0, A_EGO_COST])
       else:
         x_cost, v_cost, a_cost = 0., 0., 0.
 
@@ -329,7 +328,7 @@ class LongitudinalMpc:
     if lead is not None and lead.status:
       x_lead = lead.dRel
       v_lead = lead.vLeadK
-      a_lead = lead.aLeadK * ntune_common_get('longLeadSensitivity')
+      a_lead = lead.aLeadK
       a_lead_tau = lead.aLeadTau
     else:
       # Fake a fast lead car, so mpc can keep running in the same mode

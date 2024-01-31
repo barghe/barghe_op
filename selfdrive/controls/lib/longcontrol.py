@@ -3,6 +3,7 @@ from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, apply_deadzone
 from openpilot.selfdrive.controls.lib.pid import PIDController
+from openpilot.selfdrive.controls.ntune import ntune_common_get
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
 LongCtrlState = car.CarControl.Actuators.LongControlState
@@ -80,7 +81,7 @@ class LongControl:
       a_target_upper = 2 * (v_target_upper - v_target_now) / self.CP.longitudinalActuatorDelayUpperBound - a_target_now
 
       v_target = min(v_target_lower, v_target_upper)
-      a_target = min(a_target_lower, a_target_upper)
+      a_target = min(a_target_lower, a_target_upper) * ntune_common_get('longLeadSensitivity')
 
       v_target_1sec = interp(self.CP.longitudinalActuatorDelayUpperBound + t_since_plan + 1.0, ModelConstants.T_IDXS[:CONTROL_N], speeds)
     else:
