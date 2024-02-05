@@ -231,7 +231,7 @@ class nTune():
       updated = True
     if self.checkValue("kd", 0.0, 2.0, 0.0):
       updated = True
-    if self.checkValue("deadzone", 0.0, 0.05, 0.0):
+    if self.checkValue("deadzone", 0.0, 0.2, 0.0):
       updated = True
 
     return updated
